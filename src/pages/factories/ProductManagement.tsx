@@ -91,11 +91,32 @@ const ProductManagement = () => {
   //   }
   // };
 
-  const fetchData = async () => {
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    limit: 10,
+  });
+
+  const fetchData = async (page = 1) => {
     // Chạy cả 2 cùng lúc, không cái nào đợi cái nào
     const fetchProducts = axios
-      .get(`${API_URL}/products?lang=${selectedLang}`)
-      .then((res) => setProducts(res.data.data || res.data))
+      .get(
+        `${API_URL}/products?lang=${selectedLang}&page=${page}&limit=${pagination.limit}`,
+      )
+      .then((res) => {
+        setProducts(res.data.data || res.data);
+        console.log(res.data);
+        if (res.data.meta) {
+          setPagination((prev) => ({
+            ...prev,
+            currentPage: res.data.meta.page,
+            totalItems: res.data.meta.total,
+            limit: res.data.meta.limit,
+            totalPages: Math.round(res.data.meta.total / res.data.meta.limit),
+          }));
+        }
+      })
       .catch((err) => console.error("Lỗi load sản phẩm:", err));
 
     const fetchCategories = axios
@@ -107,8 +128,10 @@ const ProductManagement = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [selectedLang]); // Re-fetch khi đổi ngôn ngữ hiển thị
+    fetchData(pagination.currentPage);
+  }, [selectedLang, pagination.currentPage]); // Re-fetch khi đổi ngôn ngữ hiển thị
+
+  console.log(pagination);
 
   // Xử lý tìm kiếm Debounce
   useEffect(() => {
@@ -253,6 +276,85 @@ const ProductManagement = () => {
               ))}
             </tbody>
           </table>
+          {/* Pagination UI */}
+          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+            <div className="text-sm text-gray-500 font-medium">
+              Hiển thị{" "}
+              <span className="text-indigo-600 font-bold">
+                {products.length}
+              </span>{" "}
+              trên <span className="font-bold">{pagination.totalItems}</span>{" "}
+              sản phẩm
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                disabled={pagination.currentPage === 1}
+                onClick={() =>
+                  setPagination((p) => ({
+                    ...p,
+                    currentPage: p.currentPage - 1,
+                  }))
+                }
+                className="p-2 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+
+              {[...Array(pagination.totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() =>
+                    setPagination((p) => ({ ...p, currentPage: i + 1 }))
+                  }
+                  className={`w-10 h-10 rounded-xl text-sm font-bold transition-all shadow-sm ${
+                    pagination.currentPage === i + 1
+                      ? "bg-indigo-600 text-white"
+                      : "bg-white text-gray-600 border border-gray-200 hover:border-indigo-300"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                disabled={pagination.currentPage === pagination.totalPages}
+                onClick={() =>
+                  setPagination((p) => ({
+                    ...p,
+                    currentPage: p.currentPage + 1,
+                  }))
+                }
+                className="p-2 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
