@@ -106,7 +106,6 @@ const ProductManagement = () => {
       )
       .then((res) => {
         setProducts(res.data.data || res.data);
-        console.log(res.data);
         if (res.data.meta) {
           setPagination((prev) => ({
             ...prev,
@@ -130,8 +129,6 @@ const ProductManagement = () => {
   useEffect(() => {
     fetchData(pagination.currentPage);
   }, [selectedLang, pagination.currentPage]); // Re-fetch khi đổi ngôn ngữ hiển thị
-
-  console.log(pagination);
 
   // Xử lý tìm kiếm Debounce
   useEffect(() => {
@@ -393,6 +390,7 @@ const ProductModal = ({
     originalPrice: number;
     categoryId: string | number;
     images: string[];
+    videos: string[];
     translations: ProductTranslationType[];
   }>({
     id: product?.id || "",
@@ -401,6 +399,7 @@ const ProductModal = ({
     originalPrice: product?.originalPrice || 0,
     categoryId: product?.category?.id || "",
     images: product?.images || [],
+    videos: product?.videos || [],
     translations: product?.translations || createListTemp,
   });
 
@@ -462,6 +461,8 @@ const ProductModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(formData);
+
     try {
       if (product) {
         await axios.patch(`${API_URL}/products/${product.id}`, formData);
@@ -638,32 +639,6 @@ const ProductModal = ({
                 ))}
               </select>
             </div>
-            {/* <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1 tracking-wider">
-                Hình ảnh (URL)
-              </label>
-              {formData.images.map((img, i) => (
-                <input
-                  key={i}
-                  className="w-full mb-2 bg-slate-50 border-2 border-slate-100 rounded-xl p-2 text-xs"
-                  value={img}
-                  onChange={(e) => {
-                    const newImgs = [...formData.images];
-                    newImgs[i] = e.target.value;
-                    setFormData({ ...formData, images: newImgs });
-                  }}
-                />
-              ))}
-              <button
-                type="button"
-                onClick={() =>
-                  setFormData({ ...formData, images: [...formData.images, ""] })
-                }
-                className="text-xs text-indigo-600 font-bold"
-              >
-                + Thêm link ảnh
-              </button>
-            </div> */}
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-3 tracking-wider uppercase">
                 Album Hình ảnh (IDC)
@@ -680,12 +655,39 @@ const ProductModal = ({
                   setFormData({ ...formData, images: nextImages });
                 }}
                 onUpload={handleUploadImage}
+                multiple={true}
               />
 
               <p className="text-[10px] text-slate-400 mt-2 italic">
                 * Ảnh sẽ được lưu tự động vào thư mục /product trên Cloud
                 Storage.
               </p>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1 tracking-wider">
+                Hình ảnh (URL)
+              </label>
+              {formData.videos.map((img, i) => (
+                <input
+                  key={i}
+                  className="w-full mb-2 bg-slate-50 border-2 border-slate-100 rounded-xl p-2 text-xs"
+                  value={img}
+                  onChange={(e) => {
+                    const newImgs = [...formData.videos];
+                    newImgs[i] = e.target.value;
+                    setFormData({ ...formData, videos: newImgs });
+                  }}
+                />
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData({ ...formData, videos: [...formData.videos, ""] })
+                }
+                className="text-xs text-indigo-600 font-bold"
+              >
+                + Thêm link video
+              </button>
             </div>
           </div>
 
@@ -720,42 +722,6 @@ const ProductModal = ({
                     }}
                   />
                 </div>
-                {/* <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1">
-                    Giá gốc
-                  </label>
-                  <input
-                    className="w-full rounded-2xl border-2 border-white p-3 shadow-sm outline-none bg-white"
-                    value={currentT?.originalPrice}
-                    placeholder="1.000.000"
-                    onChange={(e) => {
-                      const newTrans = formData.translations.map((t) =>
-                        t.languageCode === activeTab
-                          ? { ...t, originPrice: e.target.value }
-                          : t,
-                      );
-                      setFormData({ ...formData, translations: newTrans });
-                    }}
-                  />
-                </div> */}
-                {/* <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1">
-                    Giá hiển thị (VD: Liên hệ)
-                  </label>
-                  <input
-                    className="w-full rounded-2xl border-2 border-white p-3 shadow-sm outline-none bg-white"
-                    value={"Lien he"}
-                    placeholder="1.000.000"
-                    onChange={(e) => {
-                      const newTrans = formData.translations.map((t) =>
-                        t.languageCode === activeTab
-                          ? { ...t, price: e.target.value }
-                          : t,
-                      );
-                      setFormData({ ...formData, translations: newTrans });
-                    }}
-                  />
-                </div> */}
                 <div className="col-span-2 mt-4">
                   <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
                     Mô tả chi tiết ({activeTab})

@@ -7,6 +7,8 @@ import {
   EyeIcon,
   PackageIcon,
   XIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
 } from "lucide-react";
 import axios from "axios";
 import {
@@ -14,6 +16,7 @@ import {
   type CategoryType,
   type ProductType,
 } from "../../types/quotation";
+import ImageUploadGrid from "../../components/ImageUploadGrid";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const categoryLanguageList = languageListItem;
@@ -68,31 +71,71 @@ const ProductCategoryManagement = () => {
       : (cat.translations?.[0] as Record<string, any>)?.[field] || "---";
   };
 
-  // --- LOGIC QUAN TRỌNG: DỰNG CÂY DANH MỤC ---
+  // --- LOGIC DỰNG CÂY VÀ SẮP XẾP ---
   const buildTree = (data: CategoryType[]) => {
-    const map: Record<
-      number,
-      CategoryType & { children: (CategoryType & { children: any[] })[] }
-    > = {};
-    const tree: (CategoryType & {
-      children: (CategoryType & { children: any[] })[];
-    })[] = [];
+    const map: Record<number, any> = {};
+    const tree: any[] = [];
 
-    // Bước 1: Tạo map object để truy xuất nhanh
     data.forEach((item) => {
       map[item.id] = { ...item, children: [] };
     });
 
-    // Bước 2: Kết nối con vào cha
     data.forEach((item) => {
       const parentId = item.parentId;
       if (parentId && map[parentId]) {
         map[parentId].children.push(map[item.id]);
+        map[parentId].children.sort(
+          (a: any, b: any) => (a.order || 0) - (b.order || 0),
+        );
       } else {
         tree.push(map[item.id]);
       }
     });
-    return tree;
+
+    return tree.sort((a, b) => (a.order || 0) - (b.order || 0));
+  };
+
+  // --- LOGIC ĐỔI CHỖ (SWAP ORDER) ---
+  const handleMove = async (
+    currentCat: any,
+    direction: "up" | "down",
+    siblings: any[],
+  ) => {
+    const currentIndex = siblings.findIndex((s) => s.id === currentCat.id);
+    const targetIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+    if (targetIndex < 0 || targetIndex >= siblings.length) return;
+
+    const targetCat = siblings[targetIndex];
+
+    // Hoán đổi giá trị order
+    const currentOrder = currentCat.order || 0;
+    const targetOrder = targetCat.order || 0;
+
+    try {
+      // Cập nhật UI nhanh (Local)
+      setCategories((prev: any) =>
+        prev.map((c: any) => {
+          if (c.id === currentCat.id) return { ...c, order: targetOrder };
+          if (c.id === targetCat.id) return { ...c, order: currentOrder };
+          return c;
+        }),
+      );
+
+      // Gọi API cập nhật cả hai danh mục
+      await Promise.all([
+        axios.patch(`${API_URL}/categories/${currentCat.id}`, {
+          order: targetOrder,
+        }),
+        axios.patch(`${API_URL}/categories/${targetCat.id}`, {
+          order: currentOrder,
+        }),
+      ]);
+    } catch (error) {
+      console.error("Lỗi khi di chuyển:", error);
+      fetchData();
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -108,7 +151,7 @@ const ProductCategoryManagement = () => {
 
   // --- RENDER DÒNG BẢNG (ĐỆ QUY ĐỂ THỤT LỀ) ---
   const renderCategoryRows = (items: CategoryType[], depth = 0) => {
-    return items.map((cat) => (
+    return items.map((cat, index) => (
       <React.Fragment key={cat.id}>
         <tr className="hover:bg-indigo-50/30 transition-colors group border-b border-slate-50">
           <td className="px-6 py-4 text-xs text-gray-400 font-mono">
@@ -134,6 +177,24 @@ const ProductCategoryManagement = () => {
             <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase">
               {cat.products.length || 0} SP
             </span>
+          </td>
+          <td className="px-6 py-4 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <button
+                disabled={index === 0}
+                onClick={() => handleMove(cat, "up", items)}
+                className={`p-1.5 rounded-lg transition ${index === 0 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
+              >
+                <ChevronUpIcon className="w-4 h-4" />
+              </button>
+              <button
+                disabled={index === items.length - 1}
+                onClick={() => handleMove(cat, "down", items)}
+                className={`p-1.5 rounded-lg transition ${index === items.length - 1 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
+              >
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+            </div>
           </td>
           <td className="px-6 py-4 text-right flex justify-end gap-1">
             <button
@@ -241,6 +302,9 @@ const ProductCategoryManagement = () => {
                 </th>
                 <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase">
                   Sản phẩm
+                </th>
+                <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase">
+                  Thứ tự
                 </th>
                 <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase">
                   Thao tác
@@ -372,6 +436,33 @@ const CategoryModal = ({
   // Nếu không tìm thấy (trường hợp hiếm), bạn có thể gán mặc định để tránh crash
   if (!currentT) return null;
 
+  const handleUploadImage = async (file: any) => {
+    const uploadFormData = new FormData();
+    uploadFormData.append("file", file); // 'file' phải khớp với NestJS FileInterceptor
+
+    try {
+      const token = localStorage.getItem("auth_token");
+      const res = await axios.post(
+        `${API_URL}/files/upload-product-file`, // Dùng chung endpoint upload
+        uploadFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+            "x-folder-name": "category", // Lưu vào folder category
+          },
+        },
+      );
+
+      console.log("Ảnh danh mục đã upload:", res.data.data.path);
+      return res.data.data.path;
+    } catch (error) {
+      console.error("Lỗi upload ảnh danh mục:", error);
+      alert("Lỗi upload! Kiểm tra đăng nhập hoặc quyền hạn.");
+      return null;
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
       <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden">
@@ -416,17 +507,25 @@ const CategoryModal = ({
                   ))}
               </select>
             </div>
-            <div>
-              <label className="text-[10px] font-black text-slate-400 uppercase block mb-1">
-                Ảnh URL
+
+            <div className="ml-5">
+              <label className="block text-xs font-bold text-slate-400 mb-3 uppercase">
+                Ảnh đại diện danh mục
               </label>
-              <input
-                className="w-full bg-slate-100 border-none rounded-2xl p-4"
-                value={formData.image}
-                onChange={(e) =>
-                  setFormData({ ...formData, image: e.target.value })
-                }
+
+              <ImageUploadGrid
+                // 1. images lúc này là 1 string duy nhất (ví dụ: formData.image)
+                images={formData.image}
+                // 2. setImages nhận thẳng giá trị string mới hoặc ""
+                setImages={(val) => setFormData({ ...formData, image: val })}
+                onUpload={handleUploadImage}
+                // 3. Quan trọng: Tắt chế độ nhiều ảnh
+                multiple={false}
               />
+
+              <p className="text-[10px] text-slate-400 mt-2 italic">
+                * Chỉ chọn 1 ảnh duy nhất làm đại diện.
+              </p>
             </div>
           </div>
           <div className="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100 space-y-4">

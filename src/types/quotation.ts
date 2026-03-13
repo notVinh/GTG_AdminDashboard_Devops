@@ -25,6 +25,7 @@ export interface ProductType {
   specs: any;
   translations: ProductTranslationType[];
   images: [];
+  videos: [];
   category: any;
   categoryId: number;
 }
