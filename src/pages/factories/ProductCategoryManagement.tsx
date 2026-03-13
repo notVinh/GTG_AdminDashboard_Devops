@@ -466,7 +466,7 @@ const CategoryModal = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md  ">
-      <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="p-8 border-b flex justify-between items-center bg-slate-50 ">
           <h2 className="font-black uppercase italic tracking-tighter">
             Cấu hình danh mục
