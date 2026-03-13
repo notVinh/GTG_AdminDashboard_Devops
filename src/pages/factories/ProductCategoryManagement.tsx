@@ -17,6 +17,7 @@ import {
   type ProductType,
 } from "../../types/quotation";
 import ImageUploadGrid from "../../components/ImageUploadGrid";
+import TiptapEditor from "../../components/TipTapEditor";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const categoryLanguageList = languageListItem;
@@ -464,9 +465,9 @@ const CategoryModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-      <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden">
-        <div className="p-8 border-b flex justify-between items-center bg-slate-50">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md  ">
+      <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl max-h-[90vh] flex flex-col">
+        <div className="p-8 border-b flex justify-between items-center bg-slate-50 ">
           <h2 className="font-black uppercase italic tracking-tighter">
             Cấu hình danh mục
           </h2>
@@ -483,7 +484,10 @@ const CategoryModal = ({
             ))}
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="p-8 space-y-6 overflow-y-auto flex-1 custom-scrollbar"
+        >
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-[10px] font-black text-slate-400 uppercase block mb-1">
@@ -555,11 +559,20 @@ const CategoryModal = ({
                 <label className="text-[10px] font-black text-indigo-400 uppercase">
                   Mô tả
                 </label>
-                <textarea
+                {/* <textarea
                   className="w-full bg-white rounded-xl p-3 shadow-sm h-20"
                   value={currentT.description}
                   onChange={(e) =>
                     handleUpdateField("description", e.target.value)
+                  }
+                /> */}
+                <TiptapEditor
+                  // Thêm key theo activeTab để Force Re-render editor khi đổi ngôn ngữ
+                  key={activeTab}
+                  value={currentT?.description || ""}
+                  onUploadImage={handleUploadImage}
+                  onChange={(html: string) =>
+                    handleUpdateField("description", html)
                   }
                 />
               </div>
