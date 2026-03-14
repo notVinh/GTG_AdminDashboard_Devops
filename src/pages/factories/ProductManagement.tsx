@@ -665,7 +665,7 @@ const ProductModal = ({
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1 tracking-wider">
-                Hình ảnh (URL)
+                Video (URL)
               </label>
               {formData.videos.map((img, i) => (
                 <input
