@@ -33,7 +33,9 @@ const ProductCategoryManagement = () => {
   const [currentCategory, setCurrentCategory] = useState<CategoryType | null>(
     null,
   );
-  const [productsInCategory, setProductsInCategory] = useState([]);
+  const [productsInCategory, setProductsInCategory] = useState<ProductType[]>(
+    [],
+  );
 
   const fetchData = async () => {
     try {
@@ -240,6 +242,54 @@ const ProductCategoryManagement = () => {
     ));
   };
 
+  const handleMoveProduct = async (
+    currentProd: ProductType,
+    direction: "up" | "down",
+    siblings: ProductType[],
+  ) => {
+    const currentIndex = siblings.findIndex((p) => p.id === currentProd.id);
+    const targetIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+    if (targetIndex < 0 || targetIndex >= siblings.length) return;
+
+    const targetProd = siblings[targetIndex];
+
+    // Hoán đổi giá trị order
+    const currentOrder = currentProd.order || 0;
+    const targetOrder = targetProd.order || 0;
+
+    try {
+      // 1. Cập nhật UI local để mượt mà
+      const updatedProducts = [...siblings];
+      updatedProducts[currentIndex] = { ...currentProd, order: targetOrder };
+      updatedProducts[targetIndex] = { ...targetProd, order: currentOrder };
+
+      // Sắp xếp lại mảng local theo order mới
+      updatedProducts.sort((a, b) => (a.order || 0) - (b.order || 0));
+      setProductsInCategory(updatedProducts);
+
+      // 2. Gọi API cập nhật (Giả định bạn có endpoint patch product)
+      await Promise.all([
+        axios.patch(`${API_URL}/products/${currentProd.id}`, {
+          order: targetOrder,
+        }),
+        axios.patch(`${API_URL}/products/${targetProd.id}`, {
+          order: currentOrder,
+        }),
+      ]);
+    } catch (error) {
+      console.error("Lỗi khi sắp xếp sản phẩm:", error);
+      // Nếu lỗi thì fetch lại để đồng bộ
+      if (currentCategory) {
+        const res = await axios.get(
+          `${API_URL}/categories/${currentCategory.id}/products`,
+        );
+        setProductsInCategory(res.data.products || []);
+      }
+    }
+  };
+
   return (
     <div className="p-8 bg-slate-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -336,6 +386,7 @@ const ProductCategoryManagement = () => {
           products={productsInCategory}
           onClose={() => setIsDetailModalOpen(false)}
           currentLang={displayLang}
+          onMoveProduct={handleMoveProduct}
         />
       )}
       {isProductModalOpen && (
@@ -604,11 +655,17 @@ const DetailModal = ({
   products,
   onClose,
   currentLang,
+  onMoveProduct, // Thêm prop này
 }: {
   category: CategoryType | null;
   products: ProductType[];
   onClose: () => void;
   currentLang: string;
+  onMoveProduct: (
+    p: ProductType,
+    dir: "up" | "down",
+    list: ProductType[],
+  ) => void;
 }) => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
     <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden">
@@ -631,7 +688,7 @@ const DetailModal = ({
       </div>
       <div className="p-8 max-h-[60vh] overflow-y-auto space-y-3 bg-slate-50">
         {products.length > 0 ? (
-          products.map((prod) => (
+          products.map((prod, index) => (
             <div
               key={prod.id}
               className="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm group"
@@ -651,7 +708,24 @@ const DetailModal = ({
                   ID: #{prod.id}
                 </p>
               </div>
-              <span className="text-indigo-600 font-black text-sm">
+
+              <div className="flex items-center gap-1 mr-4">
+                <button
+                  disabled={index === 0}
+                  onClick={() => onMoveProduct(prod, "up", products)}
+                  className={`p-1.5 rounded-lg transition ${index === 0 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
+                >
+                  <ChevronUpIcon className="w-4 h-4" />
+                </button>
+                <button
+                  disabled={index === products.length - 1}
+                  onClick={() => onMoveProduct(prod, "down", products)}
+                  className={`p-1.5 rounded-lg transition ${index === products.length - 1 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
+                >
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+              </div>
+              <span className="text-indigo-600 font-black text-sm mx-20">
                 {prod.price?.toLocaleString()}đ
               </span>
             </div>

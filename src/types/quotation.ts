@@ -28,6 +28,7 @@ export interface ProductType {
   videos: [];
   category: any;
   categoryId: number;
+  order: number;
 }
 
 export interface ProductTranslationType {
