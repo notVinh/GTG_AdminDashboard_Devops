@@ -1,272 +1,8 @@
-// import { useEditor, EditorContent } from "@tiptap/react";
-// import Image from "@tiptap/extension-image";
-// import { Bold, Italic, List, Image as ImageIcon } from "lucide-react";
-// import { useEffect } from "react"; // <--- Thêm useEffect
-// import StarterKit from "@tiptap/starter-kit";
-// import { Color } from "@tiptap/extension-color";
-// import FontFamily from "@tiptap/extension-font-family";
-// import { TextStyle } from "@tiptap/extension-text-style";
-
-// const TiptapEditor = ({ value, onChange, onUploadImage }: any) => {
-//   const editor = useEditor({
-//     extensions: [
-//       StarterKit,
-//       Image.configure({
-//         inline: true,
-//         allowBase64: false,
-//       }),
-//       TextStyle, // Bắt buộc phải có cái này
-//       Color, // Cho phép dùng màu
-//       FontFamily, // Cho phép dùng font
-//     ],
-//     content: value,
-//     onUpdate: ({ editor }) => {
-//       // Gửi dữ liệu lên cha khi có thay đổi
-//       onChange(editor.getHTML());
-//     },
-//     editorProps: {
-//       attributes: {
-//         class: "prose prose-sm focus:outline-none min-h-[200px] p-4",
-//       },
-//     },
-//   });
-
-//   // --- QUAN TRỌNG: FIX LỖI VĂNG FOCUS & KHÔNG CẬP NHẬT ---
-//   useEffect(() => {
-//     if (editor && value !== editor.getHTML()) {
-//       // Chỉ cập nhật nội dung nếu giá trị truyền vào khác với nội dung hiện tại của editor
-//       // Điều này ngăn chặn việc reset con trỏ chuột (focus) khi bạn đang gõ hoặc bấm nút format
-//       editor.commands.setContent(value);
-//     }
-//   }, [value, editor]);
-//   // -------------------------------------------------------
-
-//   if (!editor) return null;
-
-//   // Lưu ý: Đảm bảo các nút bấm Toolbar có type="button" để tránh trigger submit form của cha
-//   return (
-//     <div className="border-2 border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm">
-//       <div className="flex flex-wrap gap-2 p-2 bg-slate-50 border-b border-slate-100">
-//         <button
-//           type="button" // <--- Luôn thêm type="button"
-//           onClick={() => editor.chain().focus().toggleBold().run()}
-//           className={`p-2 rounded-lg transition ${editor.isActive("bold") ? "bg-indigo-600 text-white" : "hover:bg-slate-200 text-slate-600"}`}
-//         >
-//           <Bold size={18} />
-//         </button>
-//         <button
-//           type="button"
-//           onClick={() => editor.chain().focus().toggleItalic().run()}
-//           className={`p-2 rounded-lg transition ${editor.isActive("italic") ? "bg-indigo-600 text-white" : "hover:bg-slate-200 text-slate-600"}`}
-//         >
-//           <Italic size={18} />
-//         </button>
-//         <button
-//           type="button"
-//           onClick={() => editor.chain().focus().toggleBulletList().run()}
-//           className={`p-2 rounded-lg transition ${editor.isActive("bulletList") ? "bg-indigo-600 text-white" : "hover:bg-slate-200 text-slate-600"}`}
-//         >
-//           <List size={18} />
-//         </button>
-//         <button
-//           type="button"
-//           onClick={(e) => {
-//             e.preventDefault();
-//             // Logic upload ảnh của bạn giữ nguyên
-//             const input = document.createElement("input");
-//             input.type = "file";
-//             input.accept = "image/*";
-//             input.onchange = async () => {
-//               if (input.files?.length) {
-//                 const file = input.files[0];
-//                 const url = await onUploadImage(file);
-//                 if (url) editor.chain().focus().setImage({ src: url }).run();
-//               }
-//             };
-//             input.click();
-//           }}
-//           className="p-2 rounded-lg hover:bg-slate-200 text-slate-600"
-//         >
-//           <ImageIcon size={18} />
-//         </button>
-//       </div>
-
-//       <EditorContent editor={editor} />
-//     </div>
-//   );
-// };
-
-// export default TiptapEditor;
-
-// import { useEditor, EditorContent } from "@tiptap/react";
-// import Image from "@tiptap/extension-image";
-// import {
-//   Bold,
-//   Italic,
-//   List,
-//   Image as ImageIcon,
-//   Type,
-//   Palette,
-//   Baseline,
-// } from "lucide-react";
-// import { useEffect } from "react";
-// import StarterKit from "@tiptap/starter-kit";
-// import { Color } from "@tiptap/extension-color";
-// import FontFamily from "@tiptap/extension-font-family";
-// import { TextStyle } from "@tiptap/extension-text-style";
-
-// const TiptapEditor = ({ value, onChange, onUploadImage }: any) => {
-//   const editor = useEditor({
-//     extensions: [
-//       StarterKit,
-//       Image.configure({
-//         inline: true,
-//         allowBase64: false,
-//       }),
-//       TextStyle,
-//       Color,
-//       FontFamily,
-//     ],
-//     content: value,
-//     onUpdate: ({ editor }) => {
-//       onChange(editor.getHTML());
-//     },
-//     editorProps: {
-//       attributes: {
-//         class: "prose prose-sm focus:outline-none min-h-[300px] max-w-none p-4",
-//       },
-//     },
-//   });
-
-//   useEffect(() => {
-//     if (editor && value !== editor.getHTML()) {
-//       // Dùng emit: false để ngăn chặn việc gọi lại onUpdate khi setContent
-//       editor.commands.setContent(value, false);
-//     }
-//   }, [value, editor]);
-
-//   if (!editor) return null;
-
-//   const fonts = [
-//     { label: "Default", value: "" },
-//     { label: "Inter", value: "Inter" },
-//     { label: "Comic Sans", value: "Comic Sans MS, Comic Sans" },
-//     { label: "Serif", value: "serif" },
-//     { label: "Monospace", value: "monospace" },
-//   ];
-
-//   return (
-//     <div className="border-2 border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm">
-//       {/* Toolbar */}
-//       <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-50 border-b border-slate-100">
-//         {/* Font Family Selector */}
-//         <div className="flex items-center gap-1 mr-2 px-2 border-r border-slate-200">
-//           <Type size={16} className="text-slate-400" />
-//           <select
-//             className="bg-transparent text-sm font-medium text-slate-600 outline-none cursor-pointer"
-//             onChange={(e) =>
-//               editor.chain().focus().setFontFamily(e.target.value).run()
-//             }
-//             value={editor.getAttributes("textStyle").fontFamily || ""}
-//           >
-//             {fonts.map((font) => (
-//               <option key={font.label} value={font.value}>
-//                 {font.label}
-//               </option>
-//             ))}
-//           </select>
-//         </div>
-
-//         {/* Text Color */}
-//         <div className="flex items-center gap-1 mr-2 px-2 border-r border-slate-200 relative group">
-//           <Palette size={16} className="text-slate-400" />
-//           <input
-//             type="color"
-//             onInput={(e) =>
-//               editor
-//                 .chain()
-//                 .focus()
-//                 .setColor((e.target as HTMLInputElement).value)
-//                 .run()
-//             }
-//             value={editor.getAttributes("textStyle").color || "#000000"}
-//             className="w-6 h-6 p-0 border-none rounded cursor-pointer bg-transparent"
-//             title="Chọn màu chữ"
-//           />
-//           <button
-//             type="button"
-//             onClick={() => editor.chain().focus().unsetColor().run()}
-//             className="p-1 hover:bg-slate-200 rounded text-[10px] font-bold text-slate-500"
-//             title="Xóa màu"
-//           >
-//             X
-//           </button>
-//         </div>
-
-//         {/* Basic Styles */}
-//         <button
-//           type="button"
-//           onClick={() => editor.chain().focus().toggleBold().run()}
-//           className={`p-2 rounded-lg transition ${editor.isActive("bold") ? "bg-indigo-600 text-white" : "hover:bg-slate-200 text-slate-600"}`}
-//         >
-//           <Bold size={18} />
-//         </button>
-
-//         <button
-//           type="button"
-//           onClick={() => editor.chain().focus().toggleItalic().run()}
-//           className={`p-2 rounded-lg transition ${editor.isActive("italic") ? "bg-indigo-600 text-white" : "hover:bg-slate-200 text-slate-600"}`}
-//         >
-//           <Italic size={18} />
-//         </button>
-
-//         <button
-//           type="button"
-//           onClick={() => editor.chain().focus().toggleBulletList().run()}
-//           className={`p-2 rounded-lg transition ${editor.isActive("bulletList") ? "bg-indigo-600 text-white" : "hover:bg-slate-200 text-slate-600"}`}
-//         >
-//           <List size={18} />
-//         </button>
-
-//         {/* Image Upload */}
-//         <button
-//           type="button"
-//           onClick={(e) => {
-//             e.preventDefault();
-//             const input = document.createElement("input");
-//             input.type = "file";
-//             input.accept = "image/*";
-//             input.onchange = async () => {
-//               if (input.files?.length) {
-//                 const file = input.files[0];
-//                 const url = await onUploadImage(file);
-//                 if (url) editor.chain().focus().setImage({ src: url }).run();
-//               }
-//             };
-//             input.click();
-//           }}
-//           className="p-2 rounded-lg hover:bg-slate-200 text-slate-600"
-//         >
-//           <ImageIcon size={18} />
-//         </button>
-//       </div>
-
-//       {/* Editor Area */}
-//       <div className="bg-white min-h-[300px] cursor-text">
-//         <EditorContent editor={editor} />
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default TiptapEditor;
-
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
-// import FontSize from "tiptap-extension-font-size"; // Extension cài thêm
 import {
   Bold,
   Italic,
@@ -276,8 +12,47 @@ import {
   Palette,
   Baseline,
 } from "lucide-react";
-import { useEffect } from "react";
-import { FontSize, TextStyle } from "@tiptap/extension-text-style";
+import { useEffect, useState } from "react";
+
+// Định nghĩa extension FontSize tùy chỉnh
+import { Extension } from "@tiptap/core";
+import { TextStyle } from "@tiptap/extension-text-style";
+
+const FontSize = Extension.create({
+  name: "fontSize",
+  addOptions() {
+    return {
+      types: ["textStyle"],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["textStyle"],
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element: HTMLElement) =>
+              element.style.fontSize.replace(/['"]+/g, ""),
+            renderHTML: (attributes: { fontSize?: string }) => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (fontSize) =>
+        ({ chain }) => {
+          return chain().setMark("textStyle", { fontSize }).run();
+        },
+    };
+  },
+});
 
 interface TiptapEditorProps {
   value: string;
@@ -290,9 +65,27 @@ const TiptapEditor = ({
   onChange,
   onUploadImage,
 }: TiptapEditorProps) => {
+  // Thêm state để quản lý kiểu bullet (mặc định là disc - dấu chấm đặc)
+  const [bulletStyle, setBulletStyle] = useState("disc");
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+          HTMLAttributes: {
+            class: "list-none ml-4", // Để none để mình tự xử lý bằng CSS cho đẹp
+          },
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+          HTMLAttributes: {
+            class: "list-decimal ml-4",
+          },
+        },
+      }),
       Image.configure({
         inline: true,
         allowBase64: false,
@@ -300,7 +93,7 @@ const TiptapEditor = ({
       TextStyle,
       Color,
       FontFamily,
-      FontSize, // Thêm vào đây
+      FontSize,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -339,6 +132,18 @@ const TiptapEditor = ({
     "48px",
   ];
 
+  // Danh sách các kiểu dấu đầu dòng theo yêu cầu của sếp bạn
+  const bulletOptions = [
+    { label: "● Chấm đặc", value: "disc" },
+    { label: "○ Chấm rỗng", value: "circle" },
+    { label: "■ Hình vuông", value: "square" },
+    { label: "◆ Kim cương", value: "diamond" },
+    { label: "✓ Dấu tích", value: "check" },
+    { label: "➤ Mũi tên", value: "arrow" },
+    { label: "➢ Mũi tên 2 màu", value: "arrow2" },
+    { label: "★ Ngôi sao", value: "star" },
+  ];
+
   return (
     <div className="border-2 border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm ring-1 ring-black/5">
       {/* Toolbar */}
@@ -367,6 +172,7 @@ const TiptapEditor = ({
           <select
             className="text-xs font-medium text-slate-600 outline-none cursor-pointer bg-transparent w-16"
             onChange={(e) =>
+              // @ts-ignore
               editor.chain().focus().setFontSize(e.target.value).run()
             }
             value={editor.getAttributes("textStyle").fontSize || ""}
@@ -407,12 +213,32 @@ const TiptapEditor = ({
 
         <div className="h-6 w-[1px] bg-slate-300 mx-1" />
 
+        {/* Bullet Style Selector (MỚI) */}
+        <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm mr-1">
+          <List size={14} className="text-slate-400" />
+          <select
+            className="text-xs font-medium text-slate-600 outline-none cursor-pointer bg-transparent"
+            onChange={(e) => setBulletStyle(e.target.value)}
+            value={bulletStyle}
+          >
+            {bulletOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Action Buttons */}
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-2 rounded-lg transition ${editor.isActive("bold") ? "bg-indigo-600 text-white shadow-md" : "hover:bg-slate-200 text-slate-600"}`}
+            className={`p-2 rounded-lg transition ${
+              editor.isActive("bold")
+                ? "bg-indigo-600 text-white shadow-md"
+                : "hover:bg-slate-200 text-slate-600"
+            }`}
           >
             <Bold size={18} />
           </button>
@@ -420,7 +246,11 @@ const TiptapEditor = ({
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`p-2 rounded-lg transition ${editor.isActive("italic") ? "bg-indigo-600 text-white shadow-md" : "hover:bg-slate-200 text-slate-600"}`}
+            className={`p-2 rounded-lg transition ${
+              editor.isActive("italic")
+                ? "bg-indigo-600 text-white shadow-md"
+                : "hover:bg-slate-200 text-slate-600"
+            }`}
           >
             <Italic size={18} />
           </button>
@@ -428,7 +258,11 @@ const TiptapEditor = ({
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={`p-2 rounded-lg transition ${editor.isActive("bulletList") ? "bg-indigo-600 text-white shadow-md" : "hover:bg-slate-200 text-slate-600"}`}
+            className={`p-2 rounded-lg transition ${
+              editor.isActive("bulletList")
+                ? "bg-indigo-600 text-white shadow-md"
+                : "hover:bg-slate-200 text-slate-600"
+            }`}
           >
             <List size={18} />
           </button>
@@ -456,31 +290,107 @@ const TiptapEditor = ({
         </div>
       </div>
 
-      {/* Editor Content */}
-      <div className="bg-white overflow-y-auto custom-scrollbar">
+      {/* Editor Content - Thêm class bulletStyle vào đây */}
+      <div
+        className={`bg-white overflow-y-auto custom-scrollbar bullet-type-${bulletStyle}`}
+      >
         <EditorContent editor={editor} />
       </div>
-
-      {/* <style>{`
-        .ProseMirror p.is-editor-empty:first-child::before {
-          content: attr(data-placeholder);
-          float: left;
-          color: #adb5bd;
-          pointer-events: none;
-          height: 0;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #e2e8f0;
-          border-radius: 10px;
-        }
-      `}</style> */}
 
       <style
         dangerouslySetInnerHTML={{
           __html: `
+  /* RESET & CẤU HÌNH CHUNG */
+  .ProseMirror ul {
+    list-style-type: none !important;
+    padding-left: 1.5rem !important;
+    margin: 1rem 0;
+  }
+  .ProseMirror ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin: 1rem 0;
+  }
+  .ProseMirror li {
+    display: list-item !important;
+    position: relative;
+  }
+
+  /* ĐỊNH NGHĨA TỪNG LOẠI BULLET THEO HÌNH ẢNH */
+  
+  /* 1. Chấm đặc */
+  .bullet-type-disc ul li::before {
+    content: "●";
+    position: absolute;
+    left: -1.2rem;
+    font-size: 0.8rem;
+    top: 0.1rem;
+  }
+
+  /* 2. Chấm rỗng */
+  .bullet-type-circle ul li::before {
+    content: "○";
+    position: absolute;
+    left: -1.2rem;
+    font-size: 0.9rem;
+  }
+
+  /* 3. Hình vuông */
+  .bullet-type-square ul li::before {
+    content: "■";
+    position: absolute;
+    left: -1.2rem;
+    font-size: 0.8rem;
+  }
+
+  /* 4. Hình kim cương */
+  .bullet-type-diamond ul li::before {
+    content: "◆";
+    position: absolute;
+    left: -1.3rem;
+    font-size: 1rem;
+    color: #4f46e5; /* Màu indigo cho đẹp */
+  }
+
+  /* 5. Dấu tích */
+  .bullet-type-check ul li::before {
+    content: "✓";
+    position: absolute;
+    left: -1.3rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #10b981; /* Màu xanh lá */
+  }
+
+  /* 6. Mũi tên */
+  .bullet-type-arrow ul li::before {
+    content: "➤";
+    position: absolute;
+    left: -1.3rem;
+    font-size: 0.9rem;
+    color: #64748b;
+  }
+
+  /* MỚI: Định nghĩa cho Mũi tên 2 màu (arrow2) */
+  .bullet-type-arrow2 ul li::before {
+    content: "➢";
+    position: absolute;
+    left: -1.3rem;
+    font-size: 1.1rem;
+    color: #4f46e5; /* Màu chính (Indigo) */
+    text-shadow: 1px 1px 0px #f43f5e; /* Màu phụ (Hồng đỏ) tạo hiệu ứng 2 màu */
+  }
+
+  .bullet-type-star ul li::before {
+    content: "★";
+    position: absolute;
+    left: -1.3rem;
+    font-size: 1rem;
+    color: #f59e0b; /* Màu vàng Gold rực rỡ */
+    top: 0.1rem;
+  }
+
+  /* CSS CŨ CỦA BẠN */
   .ProseMirror p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     float: left;
