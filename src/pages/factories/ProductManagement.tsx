@@ -199,7 +199,7 @@ const ProductManagement = () => {
           </div>
         </div>
 
-        <div className="mb-6 relative max-w-md">
+        {/* <div className="mb-6 relative max-w-md">
           <SearchIcon className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
           <input
             type="text"
@@ -207,7 +207,7 @@ const ProductManagement = () => {
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-        </div>
+        </div> */}
 
         <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
