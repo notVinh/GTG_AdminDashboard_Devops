@@ -831,6 +831,25 @@ const ProductModal = ({
                         )
                       }
                     />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newSpecs = currentT?.specs.filter(
+                          (_: any, i: number) => i !== idx,
+                        );
+                        setFormData({
+                          ...formData,
+                          translations: formData.translations.map((t) =>
+                            t.languageCode === activeTab
+                              ? { ...t, specs: newSpecs }
+                              : t,
+                          ),
+                        });
+                      }}
+                      className="p-1"
+                    >
+                      <TrashIcon className="w-4 h-4 text-red-300 hover:text-red-500 transition-colors" />
+                    </button>
                   </div>
                 ))}
                 <button
