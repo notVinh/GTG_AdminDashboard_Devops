@@ -251,6 +251,8 @@ const ProductCategoryManagement = () => {
     const targetIndex =
       direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
+    console.log(currentProd);
+
     if (targetIndex < 0 || targetIndex >= siblings.length) return;
 
     const targetProd = siblings[targetIndex];
@@ -668,7 +670,7 @@ const DetailModal = ({
   ) => void;
 }) => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden">
+    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-5xl overflow-hidden">
       <div className="bg-indigo-600 p-8 text-white flex justify-between items-center">
         <div>
           <p className="text-[10px] font-black uppercase opacity-60">
@@ -694,7 +696,11 @@ const DetailModal = ({
               className="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm group"
             >
               <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-indigo-600 transition-colors">
-                <PackageIcon className="w-6 h-6 text-indigo-400 group-hover:text-white" />
+                {prod.images?.length > 0 ? (
+                  <img src={(prod?.images as any[])[0]} alt="hinhanh" />
+                ) : (
+                  <PackageIcon className="w-6 h-6 text-indigo-400 group-hover:text-white" />
+                )}
               </div>
               <div className="flex-1">
                 <h4 className="font-black text-slate-800 uppercase text-sm">
@@ -709,7 +715,7 @@ const DetailModal = ({
                 </p>
               </div>
 
-              <div className="flex items-center gap-1 mr-4">
+              <div className="flex items-center gap-1 mr-30">
                 <button
                   disabled={index === 0}
                   onClick={() => onMoveProduct(prod, "up", products)}
@@ -725,7 +731,7 @@ const DetailModal = ({
                   <ChevronDownIcon className="w-4 h-4" />
                 </button>
               </div>
-              <span className="text-indigo-600 font-black text-sm mx-20">
+              <span className="text-indigo-600 font-black text-sm">
                 {prod.price?.toLocaleString()}đ
               </span>
             </div>

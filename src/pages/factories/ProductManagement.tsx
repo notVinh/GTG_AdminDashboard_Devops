@@ -7,6 +7,7 @@ import {
   GlobeIcon,
   SettingsIcon,
   ListIcon,
+  PackageIcon,
 } from "lucide-react";
 import axios from "axios";
 import TiptapEditor from "../../components/TipTapEditor";
@@ -209,12 +210,15 @@ const ProductManagement = () => {
           />
         </div> */}
 
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden w-full">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50/50">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                   Mã Máy
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  Hình ảnh
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                   Tên Thiết Bị ({selectedLang})
@@ -236,23 +240,34 @@ const ProductManagement = () => {
                   <td className="px-6 py-4 text-sm font-bold text-indigo-600">
                     {prod.id}
                   </td>
+                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-600 transition-colors overflow-hidden ml-7">
+                    {prod.images?.length > 0 ? (
+                      <img
+                        src={(prod?.images as any[])[0]}
+                        alt="hinhanh"
+                        className="product-image"
+                      />
+                    ) : (
+                      <PackageIcon className="w-6 h-6 text-indigo-400 group-hover:text-white" />
+                    )}
+                  </div>
                   <td className="px-6 py-4 font-medium text-gray-800">
                     {/* displayName được service backend bóc tách theo lang gửi lên */}
                     {prod?.translations?.find(
                       (t) => t.languageCode === selectedLang,
                     )?.name || "N.A"}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 py-4">
                     <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold border border-amber-100">
                       {prod.category?.translations?.find(
                         (t: any) => t.languageCode === selectedLang,
                       )?.name || "Chưa phân loại"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 font-medium">
+                  <td className="px-6 py-4 text-sm text-gray-500 font-medium text-center">
                     {prod.brand}
                   </td>
-                  <td className="px-6 py-4 text-right space-x-1">
+                  <td className="px-6 py-4 text-right space-x-1  flex flex-row items-center justify-center">
                     <button
                       onClick={() => {
                         setCurrentProduct(prod);
