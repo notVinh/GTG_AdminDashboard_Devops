@@ -18,6 +18,7 @@ import {
   type ProductTranslationType,
   type ProductType,
 } from "../../types/quotation";
+import { formatNumber, parseNumber } from "../../lib/changevnd";
 
 const API_URL = `${import.meta.env.VITE_API_URL}`;
 
@@ -613,7 +614,7 @@ const ProductModal = ({
                 }
               />
             </div>{" "}
-            <div>
+            {/* <div>
               <label className="block text-xs font-bold text-slate-500 mb-1">
                 Giá gốc
               </label>
@@ -628,8 +629,29 @@ const ProductModal = ({
                   })
                 }
               />
-            </div>{" "}
+            </div>{" "} */}
             <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1">
+                Giá gốc
+              </label>
+              <input
+                type="text"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 focus:border-indigo-500 outline-none"
+                // Khi load từ DB, formData.originalPrice là số, hàm formatNumber sẽ biến nó thành "1.000.000"
+                value={formatNumber(formData.originalPrice)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Chỉ cho phép nhập số và dấu chấm (để format trực tiếp)
+                  const numberValue = parseNumber(value);
+
+                  setFormData({
+                    ...formData,
+                    originalPrice: numberValue, // Lưu vào DB vẫn là kiểu Number nguyên bản
+                  });
+                }}
+              />
+            </div>
+            {/* <div>
               <label className="block text-xs font-bold text-slate-500 mb-1">
                 Giá niêm yết
               </label>
@@ -641,7 +663,7 @@ const ProductModal = ({
                   setFormData({ ...formData, price: Number(e.target.value) })
                 }
               />
-            </div>
+            </div> */}
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1">
                 Danh mục
