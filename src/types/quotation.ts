@@ -29,6 +29,7 @@ export interface ProductType {
   category: any;
   categoryId: number;
   order: number;
+  model: string;
 }
 
 export interface ProductTranslationType {
