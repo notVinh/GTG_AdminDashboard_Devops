@@ -593,7 +593,6 @@ const ProductModal = ({
                 Model
               </label>
               <input
-                required
                 className="w-full bg-slate-100 border-none rounded-2xl p-4 font-mono text-indigo-600 font-bold "
                 value={formData.model}
                 onChange={(e) =>
