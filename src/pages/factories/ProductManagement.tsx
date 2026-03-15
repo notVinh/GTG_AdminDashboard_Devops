@@ -240,17 +240,17 @@ const ProductManagement = () => {
                   <td className="px-6 py-4 text-sm font-bold text-indigo-600">
                     {prod.id}
                   </td>
-                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-600 transition-colors overflow-hidden ml-7">
+                  <td className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-600 transition-colors overflow-hidden ml-7">
                     {prod.images?.length > 0 ? (
                       <img
                         src={(prod?.images as any[])[0]}
                         alt="hinhanh"
-                        className="product-image"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <PackageIcon className="w-6 h-6 text-indigo-400 group-hover:text-white" />
                     )}
-                  </div>
+                  </td>
                   <td className="px-6 py-4 font-medium text-gray-800">
                     {/* displayName được service backend bóc tách theo lang gửi lên */}
                     {prod?.translations?.find(
