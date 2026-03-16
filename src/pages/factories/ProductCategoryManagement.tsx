@@ -18,6 +18,7 @@ import {
 } from "../../types/quotation";
 import ImageUploadGrid from "../../components/ImageUploadGrid";
 import TiptapEditor from "../../components/TipTapEditor";
+import TableSkeleton from "../../components/TableSkeleton";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const categoryLanguageList = languageListItem;
@@ -37,7 +38,10 @@ const ProductCategoryManagement = () => {
     [],
   );
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       // Lấy hết toàn bộ không phân trang
       const response = await axios.get(`${API_URL}/categories`);
@@ -48,6 +52,8 @@ const ProductCategoryManagement = () => {
       setCategories(rawData || []);
     } catch (error) {
       console.error("Lỗi fetch:", error);
+    } finally {
+      setIsLoading(false); // Luôn tắt loading kể cả lỗi
     }
   };
 
@@ -364,7 +370,18 @@ const ProductCategoryManagement = () => {
                 </th>
               </tr>
             </thead>
-            <tbody>{renderCategoryRows(buildTree(categories))}</tbody>
+            {/* <tbody>{renderCategoryRows(buildTree(categories))}</tbody> */}
+            <tbody className="relative">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5}>
+                    <TableSkeleton />
+                  </td>
+                </tr>
+              ) : (
+                renderCategoryRows(buildTree(categories))
+              )}
+            </tbody>
           </table>
         </div>
       </div>
@@ -713,9 +730,19 @@ const DetailModal = ({
                 <p className="text-[10px] text-slate-400 font-mono">
                   ID: #{prod.id}
                 </p>
+                <p className="text-[10px] text-slate-400 font-mono">
+                  Model: {prod.model}
+                </p>
               </div>
 
-              <div className="flex items-center gap-1 mr-30">
+              <span className="text-indigo-600 font-black text-sm mr-20">
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(prod.originalPrice)}
+              </span>
+
+              <div className="flex items-center gap-1">
                 <button
                   disabled={index === 0}
                   onClick={() => onMoveProduct(prod, "up", products)}
@@ -731,9 +758,6 @@ const DetailModal = ({
                   <ChevronDownIcon className="w-4 h-4" />
                 </button>
               </div>
-              <span className="text-indigo-600 font-black text-sm">
-                {prod.price?.toLocaleString()}đ
-              </span>
             </div>
           ))
         ) : (
