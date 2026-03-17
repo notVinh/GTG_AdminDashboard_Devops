@@ -651,6 +651,26 @@ const ProductModal = ({
                 }}
               />
             </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1">
+                Giá bán (tham khảo)
+              </label>
+              <input
+                type="text"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 focus:border-indigo-500 outline-none"
+                value={formatNumber(formData.price)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Chỉ cho phép nhập số và dấu chấm (để format trực tiếp)
+                  const numberValue = parseNumber(value);
+
+                  setFormData({
+                    ...formData,
+                    price: numberValue, // Lưu vào DB vẫn là kiểu Number nguyên bản
+                  });
+                }}
+              />
+            </div>
             {/* <div>
               <label className="block text-xs font-bold text-slate-500 mb-1">
                 Giá niêm yết
