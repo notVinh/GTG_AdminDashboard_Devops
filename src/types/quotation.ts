@@ -15,6 +15,7 @@ export interface CategoryType {
   image?: string;
   products: any[]; // Hoặc Product interface nếu có
   children?: CategoryType[];
+  order: number;
 }
 
 export interface ProductType {

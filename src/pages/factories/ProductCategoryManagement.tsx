@@ -163,8 +163,10 @@ const ProductCategoryManagement = () => {
     return items.map((cat, index) => (
       <React.Fragment key={cat.id}>
         <tr className="hover:bg-indigo-50/30 transition-colors group border-b border-slate-50">
-          <td className="px-6 py-4 text-xs text-gray-400 font-mono">
-            #{cat.id}
+          <td
+            className={`px-6 py-4 text-xs  font-mono ${depth === 0 ? "text-indigo-500 font-semibold" : "text-gray-400"}`}
+          >
+            #{cat.order}
           </td>
           <td className="px-6 py-4">
             <div
@@ -354,7 +356,7 @@ const ProductCategoryManagement = () => {
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
                 <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase">
-                  ID
+                  STT
                 </th>
                 <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase">
                   Cấu trúc danh mục ({displayLang})
@@ -712,7 +714,8 @@ const DetailModal = ({
               key={prod.id}
               className="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm group"
             >
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-indigo-600 transition-colors">
+              <div className="text-gray-500 text-sm">#{prod.order}</div>
+              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-indigo-600 transition-colors ml-4">
                 {prod.images?.length > 0 ? (
                   <img src={(prod?.images as any[])[0]} alt="hinhanh" />
                 ) : (
