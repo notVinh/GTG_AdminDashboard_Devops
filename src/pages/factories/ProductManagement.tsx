@@ -114,7 +114,7 @@ const ProductManagement = () => {
             currentPage: res.data.meta.page,
             totalItems: res.data.meta.total,
             limit: res.data.meta.limit,
-            totalPages: Math.round(res.data.meta.total / res.data.meta.limit),
+            totalPages: Math.ceil(res.data.meta.total / res.data.meta.limit),
           }));
         }
       })
