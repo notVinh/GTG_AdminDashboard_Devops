@@ -739,16 +739,34 @@ const ProductModal = ({
                 Video (URL)
               </label>
               {formData.videos.map((img, i) => (
-                <input
+                <div
                   key={i}
-                  className="w-full mb-2 bg-slate-50 border-2 border-slate-100 rounded-xl p-2 text-xs"
-                  value={img}
-                  onChange={(e) => {
-                    const newImgs = [...formData.videos];
-                    newImgs[i] = e.target.value;
-                    setFormData({ ...formData, videos: newImgs });
-                  }}
-                />
+                  className="flex items-center gap-2 mb-2 justify-center"
+                >
+                  <input
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-2 text-xs"
+                    value={img}
+                    onChange={(e) => {
+                      const newImgs = [...formData.videos];
+                      newImgs[i] = e.target.value;
+                      setFormData({ ...formData, videos: newImgs });
+                    }}
+                  />
+                  {/* Nút xóa */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newVideos = formData.videos.filter(
+                        (_, index) => index !== i,
+                      );
+                      setFormData({ ...formData, videos: newVideos });
+                    }}
+                    className="p-1 my-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Xóa link"
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
               ))}
               <button
                 type="button"
