@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ShoppingCart,
   RefreshCw,
@@ -58,10 +58,27 @@ const extractProvince = (address: string | null | undefined): string => {
 
 export default function MisaOrderManagement() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<TabType>("sales-orders");
 
-  // Sales Orders state
+  // Helper function to update search params
+  const updateSearchParams = useCallback(
+    (newParams: Record<string, string | number | null | undefined>) => {
+      const nextParams = new URLSearchParams(searchParams);
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === "") {
+          nextParams.delete(key);
+        } else {
+          nextParams.set(key, String(value));
+        }
+      });
+      setSearchParams(nextParams, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
+
+  // Sales Orders state - init from URL
   const [orders, setOrders] = useState<MisaSaOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -87,10 +104,31 @@ export default function MisaOrderManagement() {
   } | null>(null);
   const [showSyncDetails, setShowSyncDetails] = useState(false);
   const [loadingSyncDetails, setLoadingSyncDetails] = useState(false);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
+  const [limit, setLimit] = useState(Number(searchParams.get("limit")) || 20);
   const [total, setTotal] = useState(0);
+
+  // Sync state with URL when page/limit/search changes
+  useEffect(() => {
+    const urlPage = Number(searchParams.get("page")) || 1;
+    const urlLimit = Number(searchParams.get("limit")) || 20;
+    const urlSearch = searchParams.get("search") || "";
+
+    if (page !== urlPage) setPage(urlPage);
+    if (limit !== urlLimit) setLimit(urlLimit);
+    if (search !== urlSearch) setSearch(urlSearch);
+  }, [searchParams]);
+
+  // Special setPage that updates URL
+  const handlePageChange = (newPage: number) => {
+    updateSearchParams({ page: newPage });
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    updateSearchParams({ page: 1, limit: newLimit });
+  };
+
 
   // Selected order and details
   const [selectedOrder, setSelectedOrder] = useState<MisaSaOrder | null>(null);
@@ -130,13 +168,39 @@ export default function MisaOrderManagement() {
   // Filter state
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    localDeliveryStatus: "",
-    orderWorkflowStatus: "",
-    priority: "",
-    machineType: "",
-    saleType: "",
-    provinceSearch: "",
+    localDeliveryStatus: searchParams.get("localDeliveryStatus") || "",
+    orderWorkflowStatus: searchParams.get("orderWorkflowStatus") || "",
+    priority: searchParams.get("priority") || "",
+    machineType: searchParams.get("machineType") || "",
+    saleType: searchParams.get("saleType") || "",
+    provinceSearch: searchParams.get("province") || "",
   });
+
+  // Sync filters with URL
+  useEffect(() => {
+    const urlFilters = {
+      localDeliveryStatus: searchParams.get("localDeliveryStatus") || "",
+      orderWorkflowStatus: searchParams.get("orderWorkflowStatus") || "",
+      priority: searchParams.get("priority") || "",
+      machineType: searchParams.get("machineType") || "",
+      saleType: searchParams.get("saleType") || "",
+      provinceSearch: searchParams.get("province") || "",
+    };
+
+    if (JSON.stringify(filters) !== JSON.stringify(urlFilters)) {
+      setFilters(urlFilters);
+    }
+  }, [searchParams]);
+
+  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+    const updated = { ...filters, ...newFilters };
+    updateSearchParams({
+      page: 1, // Reset to page 1 when filter changes
+      ...updated,
+      province: updated.provinceSearch, // remap provinceSearch to province in URL
+    });
+  };
+
 
   // Options cho các trường select
   const machineTypeOptions = ["Máy mới", "Máy cũ"];
@@ -186,7 +250,7 @@ export default function MisaOrderManagement() {
 
   // Clear all filters
   const clearFilters = () => {
-    setFilters({
+    handleFilterChange({
       localDeliveryStatus: "",
       orderWorkflowStatus: "",
       priority: "",
@@ -742,15 +806,13 @@ export default function MisaOrderManagement() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1);
+    updateSearchParams({ page: 1, search: search });
     setSelectedOrder(null);
-    fetchOrders();
   };
 
-  const handleLimitChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1);
-  };
+
+  // handleLimitChange is already defined above
+
 
   const handleSyncOrders = async () => {
     setSyncing(true);
@@ -931,7 +993,7 @@ export default function MisaOrderManagement() {
                 compact
                 provinceSearch={filters.provinceSearch}
                 onProvinceSearchChange={(val) =>
-                  setFilters((prev) => ({ ...prev, provinceSearch: val }))
+                  handleFilterChange({ provinceSearch: val })
                 }
               />
             </div>
@@ -986,10 +1048,7 @@ export default function MisaOrderManagement() {
                   <select
                     value={filters.orderWorkflowStatus}
                     onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        orderWorkflowStatus: e.target.value,
-                      }))
+                      handleFilterChange({ orderWorkflowStatus: e.target.value })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
@@ -1009,10 +1068,7 @@ export default function MisaOrderManagement() {
                   <select
                     value={filters.localDeliveryStatus}
                     onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        localDeliveryStatus: e.target.value,
-                      }))
+                      handleFilterChange({ localDeliveryStatus: e.target.value })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
@@ -1033,10 +1089,7 @@ export default function MisaOrderManagement() {
                   <select
                     value={filters.priority}
                     onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        priority: e.target.value,
-                      }))
+                      handleFilterChange({ priority: e.target.value })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
@@ -1056,10 +1109,7 @@ export default function MisaOrderManagement() {
                   <select
                     value={filters.machineType}
                     onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        machineType: e.target.value,
-                      }))
+                      handleFilterChange({ machineType: e.target.value })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
@@ -1079,10 +1129,7 @@ export default function MisaOrderManagement() {
                   <select
                     value={filters.saleType}
                     onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        saleType: e.target.value,
-                      }))
+                      handleFilterChange({ saleType: e.target.value })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
@@ -1810,7 +1857,7 @@ export default function MisaOrderManagement() {
                   page={page}
                   limit={limit}
                   total={total}
-                  onPageChange={setPage}
+                  onPageChange={handlePageChange}
                   onLimitChange={handleLimitChange}
                 />
               </div>

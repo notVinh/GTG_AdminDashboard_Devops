@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AssignOrderDialog from "../../components/AssignOrderDialog";
 import {
   FileText,
@@ -28,28 +28,76 @@ import { format } from "date-fns";
 export default function MyFactoryMisaOrders() {
   const { user: _user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
+
   const { confirm } = useConfirm();
   const [myFactory, setMyFactory] = useState<any>(null);
   const [orders, setOrders] = useState<MisaOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [stepFilter, setStepFilter] = useState<string>("");
+
+  // Helper to update URL params
+  const updateSearchParams = useCallback(
+    (newParams: Record<string, string | number | null | undefined>) => {
+      const nextParams = new URLSearchParams(searchParams);
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === "") {
+          nextParams.delete(key);
+        } else {
+          nextParams.set(key, String(value));
+        }
+      });
+      setSearchParams(nextParams, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
+
+  // States initialized from URL
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get("status") || "");
+  const [stepFilter, setStepFilter] = useState<string>(searchParams.get("step") || "");
   const [actionLoading, setActionLoading] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   // Pagination state
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(20);
+  const [page, setPage] = useState<number>(Number(searchParams.get("page")) || 1);
+  const [limit, setLimit] = useState<number>(Number(searchParams.get("limit")) || 20);
   const [total, setTotal] = useState<number>(0);
 
   // Month navigation state
-  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth()); // 0-11
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(
+    searchParams.get("month")
+      ? Number(searchParams.get("month")) - 1
+      : new Date().getMonth(),
+  ); // 0-11
+  const [selectedYear, setSelectedYear] = useState<number>(
+    searchParams.get("year")
+      ? Number(searchParams.get("year"))
+      : new Date().getFullYear(),
+  );
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+
+  // Sync state with URL when searchParams changes (e.g. back button)
+  useEffect(() => {
+    const urlPage = Number(searchParams.get("page")) || 1;
+    const urlLimit = Number(searchParams.get("limit")) || 20;
+    const urlSearch = searchParams.get("search") || "";
+    const urlStatus = searchParams.get("status") || "";
+    const urlStep = searchParams.get("step") || "";
+    const urlMonth = searchParams.get("month") ? Number(searchParams.get("month")) - 1 : new Date().getMonth();
+    const urlYear = searchParams.get("year") ? Number(searchParams.get("year")) : new Date().getFullYear();
+
+    if (page !== urlPage) setPage(urlPage);
+    if (limit !== urlLimit) setLimit(urlLimit);
+    if (searchTerm !== urlSearch) setSearchTerm(urlSearch);
+    if (statusFilter !== urlStatus) setStatusFilter(urlStatus);
+    if (stepFilter !== urlStep) setStepFilter(urlStep);
+    if (selectedMonth !== urlMonth) setSelectedMonth(urlMonth);
+    if (selectedYear !== urlYear) setSelectedYear(urlYear);
+  }, [searchParams]);
+
 
   useEffect(() => {
     let isMounted = true;
@@ -149,48 +197,42 @@ export default function MyFactoryMisaOrders() {
     });
   }, [orders, searchTerm]);
 
-  // Reset page to 1 when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter, stepFilter, searchTerm, selectedMonth, selectedYear, startDate, endDate, limit]);
+  // Reset page to 1 when filters change is now handled by updateSearchParams in individual change handlers
+
 
   // Check if any filters are active
   const hasActiveFilters = statusFilter !== "" || stepFilter !== "" || searchTerm.trim() !== "";
 
   // Month navigation handlers
   const handlePrevMonth = () => {
-    setStartDate("");
-    setEndDate("");
-
-    if (selectedMonth === 0) {
-      setSelectedMonth(11);
-      setSelectedYear(selectedYear - 1);
-    } else {
-      setSelectedMonth(selectedMonth - 1);
-    }
+    const nextMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
+    const nextYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
+    updateSearchParams({
+      page: 1,
+      month: nextMonth + 1,
+      year: nextYear,
+    });
   };
 
   const handleNextMonth = () => {
-    setStartDate("");
-    setEndDate("");
-
-    if (selectedMonth === 11) {
-      setSelectedMonth(0);
-      setSelectedYear(selectedYear + 1);
-    } else {
-      setSelectedMonth(selectedMonth + 1);
-    }
+    const nextMonth = selectedMonth === 11 ? 0 : selectedMonth + 1;
+    const nextYear = selectedMonth === 11 ? selectedYear + 1 : selectedYear;
+    updateSearchParams({
+      page: 1,
+      month: nextMonth + 1,
+      year: nextYear,
+    });
   };
 
   // Pagination handlers
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    updateSearchParams({ page: newPage });
   };
 
   const handleLimitChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1);
+    updateSearchParams({ page: 1, limit: newLimit });
   };
+
 
   const loadOrders = async () => {
     if (!myFactory?.id || !startDate || !endDate) return;
@@ -550,7 +592,7 @@ export default function MyFactoryMisaOrders() {
               type: "select",
               label: "Trạng thái",
               value: statusFilter,
-              onChange: setStatusFilter,
+              onChange: (val) => updateSearchParams({ page: 1, status: val }),
               options: [
                 { value: "", label: "Tất cả trạng thái" },
                 { value: "pendingApproval", label: "Chờ duyệt" },
@@ -566,7 +608,7 @@ export default function MyFactoryMisaOrders() {
               type: "select",
               label: "Bước công việc",
               value: stepFilter,
-              onChange: setStepFilter,
+              onChange: (val) => updateSearchParams({ page: 1, step: val }),
               options: [
                 { value: "", label: "Tất cả bước" },
                 { value: "warehouse", label: "Kho chuẩn bị máy" },
@@ -590,17 +632,21 @@ export default function MyFactoryMisaOrders() {
                 type="text"
                 placeholder="Nhập số đơn hàng hoặc tên khách hàng..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => updateSearchParams({ page: 1, search: e.target.value })}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           }
           onClearFilters={() => {
-            setStatusFilter("");
-            setStepFilter("");
-            setSearchTerm("");
+            updateSearchParams({
+              page: 1,
+              status: "",
+              step: "",
+              search: "",
+            });
           }}
           hasActiveFilters={hasActiveFilters}
+
         />
       </div>
 
