@@ -885,6 +885,8 @@ export const misaDataSourceApi = {
     startDate?: string,
     endDate?: string,
     province?: string,
+    sortField?: string,
+    sortOrder?: "ASC" | "DESC",
   ): Promise<{
     data: MisaSaOrder[];
     total: number;
@@ -898,6 +900,8 @@ export const misaDataSourceApi = {
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
     if (province) params.append("province", province);
+    if (sortField) params.append("sortField", sortField);
+    if (sortOrder) params.append("sortOrder", sortOrder);
     const response = await http<any>(`${API_PATH}/sa-orders/list?${params}`);
     const result = response.data;
     return {

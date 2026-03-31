@@ -13,6 +13,9 @@ import {
   Plus,
   XCircle,
   RotateCcw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import ManualOrderForm from "../../components/ManualOrderForm";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -109,15 +112,27 @@ export default function MisaOrderManagement() {
   const [limit, setLimit] = useState(Number(searchParams.get("limit")) || 20);
   const [total, setTotal] = useState(0);
 
+  // Sorting state - init from URL
+  const [sortField, setSortField] = useState<string | null>(
+    searchParams.get("sortField"),
+  );
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC" | null>(
+    (searchParams.get("sortOrder") as "ASC" | "DESC") || null,
+  );
+
   // Sync state with URL when page/limit/search changes
   useEffect(() => {
     const urlPage = Number(searchParams.get("page")) || 1;
     const urlLimit = Number(searchParams.get("limit")) || 20;
     const urlSearch = searchParams.get("search") || "";
+    const urlSortField = searchParams.get("sortField") || null;
+    const urlSortOrder = (searchParams.get("sortOrder") as "ASC" | "DESC") || null;
 
     if (page !== urlPage) setPage(urlPage);
     if (limit !== urlLimit) setLimit(urlLimit);
     if (search !== urlSearch) setSearch(urlSearch);
+    if (sortField !== urlSortField) setSortField(urlSortField);
+    if (sortOrder !== urlSortOrder) setSortOrder(urlSortOrder);
   }, [searchParams]);
 
   // Special setPage that updates URL
@@ -127,6 +142,24 @@ export default function MisaOrderManagement() {
 
   const handleLimitChange = (newLimit: number) => {
     updateSearchParams({ page: 1, limit: newLimit });
+  };
+
+  const handleSort = (field: string) => {
+    let newOrder: "ASC" | "DESC" | null = "DESC";
+
+    if (sortField === field) {
+      if (sortOrder === "DESC") newOrder = "ASC";
+      else if (sortOrder === "ASC") newOrder = null;
+    }
+
+    setSortField(newOrder ? field : null);
+    setSortOrder(newOrder);
+
+    updateSearchParams({
+      page: 1,
+      sortField: newOrder ? field : null,
+      sortOrder: newOrder,
+    });
   };
 
 
@@ -764,6 +797,8 @@ export default function MisaOrderManagement() {
         undefined,
         undefined,
         filters.provinceSearch || undefined,
+        sortField || undefined,
+        sortOrder || undefined,
       );
       setOrders(result.data);
       setTotal(result.total);
@@ -776,7 +811,7 @@ export default function MisaOrderManagement() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, filters.provinceSearch]);
+  }, [page, limit, search, filters.provinceSearch, sortField, sortOrder]);
 
   // Fetch order details when selected order changes
   const fetchOrderDetails = useCallback(async (orderId: number) => {
@@ -1412,11 +1447,39 @@ export default function MisaOrderManagement() {
                     <th className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky left-[290px] top-0 bg-gray-50 z-30 border-r border-gray-200 w-[100px]">
                       Độ ưu tiên
                     </th>
-                    <th className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[100px]">
-                      Ngày yêu cầu giao
+                    <th
+                      className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("requestedDeliveryDate")}
+                    >
+                      <div className="flex items-center gap-1">
+                        Ngày yêu cầu giao
+                        {sortField === "requestedDeliveryDate" ? (
+                          sortOrder === "DESC" ? (
+                            <ArrowUp className="w-3 h-3 text-blue-600" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-blue-600" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </div>
                     </th>
-                    <th className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[100px]">
-                      Ngày thực tế xuất kho
+                    <th
+                      className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("actualExportDate")}
+                    >
+                      <div className="flex items-center gap-1">
+                        Ngày thực tế xuất kho
+                        {sortField === "actualExportDate" ? (
+                          sortOrder === "DESC" ? (
+                            <ArrowUp className="w-3 h-3 text-blue-600" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-blue-600" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </div>
                     </th>
                     <th className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[200px]">
                       Tình trạng hàng hóa/Ghi chú
