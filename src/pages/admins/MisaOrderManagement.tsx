@@ -174,6 +174,10 @@ export default function MisaOrderManagement() {
     machineType: searchParams.get("machineType") || "",
     saleType: searchParams.get("saleType") || "",
     provinceSearch: searchParams.get("province") || "",
+    reqDeliveryStartDate: searchParams.get("reqDeliveryStartDate") || "",
+    reqDeliveryEndDate: searchParams.get("reqDeliveryEndDate") || "",
+    actualExportStartDate: searchParams.get("actualExportStartDate") || "",
+    actualExportEndDate: searchParams.get("actualExportEndDate") || "",
   });
 
   // Sync filters with URL
@@ -185,6 +189,10 @@ export default function MisaOrderManagement() {
       machineType: searchParams.get("machineType") || "",
       saleType: searchParams.get("saleType") || "",
       provinceSearch: searchParams.get("province") || "",
+      reqDeliveryStartDate: searchParams.get("reqDeliveryStartDate") || "",
+      reqDeliveryEndDate: searchParams.get("reqDeliveryEndDate") || "",
+      actualExportStartDate: searchParams.get("actualExportStartDate") || "",
+      actualExportEndDate: searchParams.get("actualExportEndDate") || "",
     };
 
     if (JSON.stringify(filters) !== JSON.stringify(urlFilters)) {
@@ -257,6 +265,10 @@ export default function MisaOrderManagement() {
       machineType: "",
       saleType: "",
       provinceSearch: "",
+      reqDeliveryStartDate: "",
+      reqDeliveryEndDate: "",
+      actualExportStartDate: "",
+      actualExportEndDate: "",
     });
   };
 
@@ -764,6 +776,10 @@ export default function MisaOrderManagement() {
         undefined,
         undefined,
         filters.provinceSearch || undefined,
+        filters.reqDeliveryStartDate || undefined,
+        filters.reqDeliveryEndDate || undefined,
+        filters.actualExportStartDate || undefined,
+        filters.actualExportEndDate || undefined,
       );
       setOrders(result.data);
       setTotal(result.total);
@@ -776,7 +792,16 @@ export default function MisaOrderManagement() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, filters.provinceSearch]);
+  }, [
+    page,
+    limit,
+    search,
+    filters.provinceSearch,
+    filters.reqDeliveryStartDate,
+    filters.reqDeliveryEndDate,
+    filters.actualExportStartDate,
+    filters.actualExportEndDate,
+  ]);
 
   // Fetch order details when selected order changes
   const fetchOrderDetails = useCallback(async (orderId: number) => {
@@ -1140,6 +1165,62 @@ export default function MisaOrderManagement() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* Ngày yêu cầu giao */}
+                <div className="col-span-1">
+                  <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                    Ngày yêu cầu giao (Từ)
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.reqDeliveryStartDate}
+                    onChange={(e) =>
+                      handleFilterChange({ reqDeliveryStartDate: e.target.value })
+                    }
+                    className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                    Ngày yêu cầu giao (Đến)
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.reqDeliveryEndDate}
+                    onChange={(e) =>
+                      handleFilterChange({ reqDeliveryEndDate: e.target.value })
+                    }
+                    className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Ngày thực tế xuất kho */}
+                <div className="col-span-1">
+                  <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                    Ngày thực tế xuất kho (Từ)
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.actualExportStartDate}
+                    onChange={(e) =>
+                      handleFilterChange({ actualExportStartDate: e.target.value })
+                    }
+                    className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                    Ngày thực tế xuất kho (Đến)
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.actualExportEndDate}
+                    onChange={(e) =>
+                      handleFilterChange({ actualExportEndDate: e.target.value })
+                    }
+                    className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
                 </div>
               </div>
             </div>

@@ -885,6 +885,10 @@ export const misaDataSourceApi = {
     startDate?: string,
     endDate?: string,
     province?: string,
+    reqDeliveryStartDate?: string,
+    reqDeliveryEndDate?: string,
+    actualExportStartDate?: string,
+    actualExportEndDate?: string,
   ): Promise<{
     data: MisaSaOrder[];
     total: number;
@@ -898,6 +902,10 @@ export const misaDataSourceApi = {
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
     if (province) params.append("province", province);
+    if (reqDeliveryStartDate) params.append("reqDeliveryStartDate", reqDeliveryStartDate);
+    if (reqDeliveryEndDate) params.append("reqDeliveryEndDate", reqDeliveryEndDate);
+    if (actualExportStartDate) params.append("actualExportStartDate", actualExportStartDate);
+    if (actualExportEndDate) params.append("actualExportEndDate", actualExportEndDate);
     const response = await http<any>(`${API_PATH}/sa-orders/list?${params}`);
     const result = response.data;
     return {
