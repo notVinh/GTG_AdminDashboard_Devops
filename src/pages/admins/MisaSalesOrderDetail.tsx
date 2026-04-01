@@ -3001,6 +3001,7 @@ export default function MisaSalesOrderDetailPage() {
               >
                 <option value="">-- Chọn --</option>
                 <option value="Chưa giao">Chưa giao</option>
+                <option value="Chưa giao hết">Chưa giao hết</option>
                 <option value="Đã giao">Đã giao</option>
               </select>
             </div>

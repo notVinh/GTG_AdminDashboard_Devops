@@ -129,7 +129,6 @@ export default function MisaOrderManagement() {
     updateSearchParams({ page: 1, limit: newLimit });
   };
 
-
   // Selected order and details
   const [selectedOrder, setSelectedOrder] = useState<MisaSaOrder | null>(null);
   const [orderDetails, setOrderDetails] = useState<MisaSaOrderDetail[]>([]);
@@ -165,6 +164,9 @@ export default function MisaOrderManagement() {
     loading: false,
   });
 
+  // Detail panel toggle
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
+
   // Filter state
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -173,6 +175,7 @@ export default function MisaOrderManagement() {
     priority: searchParams.get("priority") || "",
     machineType: searchParams.get("machineType") || "",
     saleType: searchParams.get("saleType") || "",
+    region: searchParams.get("region") || "",
     provinceSearch: searchParams.get("province") || "",
     reqDeliveryStartDate: searchParams.get("reqDeliveryStartDate") || "",
     reqDeliveryEndDate: searchParams.get("reqDeliveryEndDate") || "",
@@ -188,6 +191,7 @@ export default function MisaOrderManagement() {
       priority: searchParams.get("priority") || "",
       machineType: searchParams.get("machineType") || "",
       saleType: searchParams.get("saleType") || "",
+      region: searchParams.get("region") || "",
       provinceSearch: searchParams.get("province") || "",
       reqDeliveryStartDate: searchParams.get("reqDeliveryStartDate") || "",
       reqDeliveryEndDate: searchParams.get("reqDeliveryEndDate") || "",
@@ -209,12 +213,11 @@ export default function MisaOrderManagement() {
     });
   };
 
-
   // Options cho các trường select
   const machineTypeOptions = ["Máy mới", "Máy cũ"];
   const regionOptions = ["Miền Bắc", "Miền Trung", "Miền Nam"];
   const priorityOptions = ["Thường", "Gấp", "Rất Gấp"];
-  const deliveryStatusOptions = ["Chưa giao", "Đã giao"];
+  const deliveryStatusOptions = ["Chưa giao", "Đã giao", "Chưa giao hết"];
   const saleTypeOptions = ["Bán", "Cho thuê", "Cho mượn", "Đổi"];
 
   // Workflow status options for filter
@@ -253,6 +256,9 @@ export default function MisaOrderManagement() {
     if (filters.saleType && order.saleType !== filters.saleType) {
       return false;
     }
+    if (filters.region && order.region !== filters.region) {
+      return false;
+    }
     return true;
   });
 
@@ -264,6 +270,7 @@ export default function MisaOrderManagement() {
       priority: "",
       machineType: "",
       saleType: "",
+      region: "",
       provinceSearch: "",
       reqDeliveryStartDate: "",
       reqDeliveryEndDate: "",
@@ -292,6 +299,7 @@ export default function MisaOrderManagement() {
       localDeliveryStatus: {
         "Chưa giao": { bg: "bg-yellow-100", text: "text-yellow-700" },
         "Đã giao": { bg: "bg-green-100", text: "text-green-700" },
+        "Chưa giao hết": { bg: "bg-red-100", text: "text-red-700" },
       },
       saleType: {
         Bán: { bg: "bg-blue-100", text: "text-blue-700" },
@@ -835,9 +843,7 @@ export default function MisaOrderManagement() {
     setSelectedOrder(null);
   };
 
-
   // handleLimitChange is already defined above
-
 
   const handleSyncOrders = async () => {
     setSyncing(true);
@@ -929,9 +935,15 @@ export default function MisaOrderManagement() {
   };
 
   const handleRowClick = (order: MisaSaOrder) => {
-    setSelectedOrder(order);
-    setDetailEditMode(false);
-    setDetailEditValues({});
+    if (selectedOrder?.id === order.id) {
+      // Same row clicked: toggle panel
+      setShowDetailPanel((prev) => !prev);
+    } else {
+      setSelectedOrder(order);
+      setDetailEditMode(false);
+      setDetailEditValues({});
+      setShowDetailPanel(true);
+    }
   };
 
   // Start editing in detail panel (for non-draft orders)
@@ -1073,7 +1085,9 @@ export default function MisaOrderManagement() {
                   <select
                     value={filters.orderWorkflowStatus}
                     onChange={(e) =>
-                      handleFilterChange({ orderWorkflowStatus: e.target.value })
+                      handleFilterChange({
+                        orderWorkflowStatus: e.target.value,
+                      })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
@@ -1093,7 +1107,9 @@ export default function MisaOrderManagement() {
                   <select
                     value={filters.localDeliveryStatus}
                     onChange={(e) =>
-                      handleFilterChange({ localDeliveryStatus: e.target.value })
+                      handleFilterChange({
+                        localDeliveryStatus: e.target.value,
+                      })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
@@ -1103,6 +1119,9 @@ export default function MisaOrderManagement() {
                     </option>
                     <option key={"undone"} value={"Chưa giao"}>
                       {"Chưa giao"}
+                    </option>
+                    <option key={"partially_done"} value={"Chưa giao hết"}>
+                      {"Chưa giao hết"}
                     </option>
                   </select>
                 </div>
@@ -1167,6 +1186,27 @@ export default function MisaOrderManagement() {
                   </select>
                 </div>
 
+                {/* Miền */}
+                <div>
+                  <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                    Miền
+                  </label>
+                  <select
+                    value={filters.region}
+                    onChange={(e) =>
+                      handleFilterChange({ region: e.target.value })
+                    }
+                    className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Tất cả</option>
+                    {regionOptions.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Ngày yêu cầu giao */}
                 <div className="col-span-1">
                   <label className="block text-[11px] font-medium text-gray-500 mb-1">
@@ -1176,7 +1216,9 @@ export default function MisaOrderManagement() {
                     type="date"
                     value={filters.reqDeliveryStartDate}
                     onChange={(e) =>
-                      handleFilterChange({ reqDeliveryStartDate: e.target.value })
+                      handleFilterChange({
+                        reqDeliveryStartDate: e.target.value,
+                      })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
@@ -1204,7 +1246,9 @@ export default function MisaOrderManagement() {
                     type="date"
                     value={filters.actualExportStartDate}
                     onChange={(e) =>
-                      handleFilterChange({ actualExportStartDate: e.target.value })
+                      handleFilterChange({
+                        actualExportStartDate: e.target.value,
+                      })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
@@ -1217,7 +1261,9 @@ export default function MisaOrderManagement() {
                     type="date"
                     value={filters.actualExportEndDate}
                     onChange={(e) =>
-                      handleFilterChange({ actualExportEndDate: e.target.value })
+                      handleFilterChange({
+                        actualExportEndDate: e.target.value,
+                      })
                     }
                     className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
@@ -1448,11 +1494,8 @@ export default function MisaOrderManagement() {
             </div>
           )}
 
-          {/* Orders List - 63% */}
-          <div
-            className="bg-white rounded-lg border border-gray-200 flex flex-col min-h-0 overflow-hidden"
-            style={{ height: "63%" }}
-          >
+          {/* Orders List */}
+          <div className="bg-white rounded-lg border border-gray-200 flex flex-col min-h-0 overflow-hidden flex-1">
             {/* Header with total */}
             <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex-shrink-0">
               <span className="text-[13px] font-medium text-gray-700">
@@ -1945,19 +1988,16 @@ export default function MisaOrderManagement() {
             )}
           </div>
 
-          {/* Order Details - 35% */}
-          <div
-            className="bg-white rounded-lg border border-gray-200 flex flex-col min-h-0 overflow-hidden"
-            style={{ height: "35%" }}
-          >
-            {selectedOrder ? (
-              <>
+          {/* Order Details Panel - inline collapsible */}
+          {showDetailPanel && selectedOrder && (
+          <div className="bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden flex-shrink-0" style={{ height: "38vh" }}>
+            <>
                 {/* Detail Header */}
                 <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Package className="w-4 h-4 text-gray-500" />
                     <span className="text-[13px] font-medium text-gray-900">
-                      {detailEditMode ? "Sửa thông tin: " : "Chi tiết: "}
+                      {detailEditMode ? "Sửa thông tin: " : "Sản phẩm đơn: "}
                       <span className="text-blue-600">
                         {selectedOrder.refNo}
                       </span>
@@ -1968,6 +2008,7 @@ export default function MisaOrderManagement() {
                       </span>
                     )}
                   </div>
+                  <div className="flex items-center gap-1">
                   {/* Edit/Save/Cancel buttons for non-draft orders */}
                   {!canEditInline(selectedOrder) && (
                     <div className="flex items-center gap-1">
@@ -2002,6 +2043,15 @@ export default function MisaOrderManagement() {
                       )}
                     </div>
                   )}
+                  {/* Close / hide panel button */}
+                  <button
+                    onClick={() => setShowDetailPanel(false)}
+                    title="Ẩn sản phẩm"
+                    className="ml-1 flex items-center justify-center w-6 h-6 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  </div>
                 </div>
 
                 {/* Edit Form - shows when detailEditMode is true */}
@@ -2369,17 +2419,8 @@ export default function MisaOrderManagement() {
                   </table>
                 </div>
               </>
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-500">
-                <div className="text-center">
-                  <Package className="w-6 h-6 mx-auto mb-1 opacity-50" />
-                  <span className="text-[13px]">
-                    Chọn một đơn hàng để xem chi tiết sản phẩm
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
+          )}
         </div>
       )}
 
