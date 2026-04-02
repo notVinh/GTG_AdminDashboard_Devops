@@ -61,6 +61,21 @@ export type MisaSyncLogEntry = {
   timestamp: string;
 };
 
+export type MisaInventoryBalance = {
+  inventoryItemId: string;
+  inventoryItemCode: string;
+  inventoryItemName: string;
+  unitName: string;
+  balanceQuantity: number;
+  openingQuantity: number;
+  closingQuantity: number;
+  totalInQuantity: number;
+  totalOutQuantity: number;
+  stockId: string;
+  stockCode: string;
+  stockName: string;
+};
+
 export type MisaStock = {
   id: number;
   stockId: string;
@@ -902,10 +917,14 @@ export const misaDataSourceApi = {
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
     if (province) params.append("province", province);
-    if (reqDeliveryStartDate) params.append("reqDeliveryStartDate", reqDeliveryStartDate);
-    if (reqDeliveryEndDate) params.append("reqDeliveryEndDate", reqDeliveryEndDate);
-    if (actualExportStartDate) params.append("actualExportStartDate", actualExportStartDate);
-    if (actualExportEndDate) params.append("actualExportEndDate", actualExportEndDate);
+    if (reqDeliveryStartDate)
+      params.append("reqDeliveryStartDate", reqDeliveryStartDate);
+    if (reqDeliveryEndDate)
+      params.append("reqDeliveryEndDate", reqDeliveryEndDate);
+    if (actualExportStartDate)
+      params.append("actualExportStartDate", actualExportStartDate);
+    if (actualExportEndDate)
+      params.append("actualExportEndDate", actualExportEndDate);
     const response = await http<any>(`${API_PATH}/sa-orders/list?${params}`);
     const result = response.data;
     return {
@@ -1393,6 +1412,16 @@ export const misaDataSourceApi = {
     if (response.statusCode >= 400) {
       throw new Error(response.message || "Có lỗi xảy ra");
     }
+    return response.data;
+  },
+
+  // Get inventory balance for a stock
+  getInventoryBalance: async (
+    stockId: string,
+  ): Promise<MisaInventoryBalance[]> => {
+    const response = await http<any>(
+      `${API_PATH}/inventory-balance/${stockId}`,
+    );
     return response.data;
   },
 };

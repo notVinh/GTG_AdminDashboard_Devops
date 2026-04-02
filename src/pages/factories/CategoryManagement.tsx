@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { Users, Package, RefreshCw, Warehouse } from "lucide-react";
+import { Users, Package, RefreshCw, Warehouse, X } from "lucide-react";
 import { misaCustomerApi, type MisaCustomer } from "../../api/misa-customer";
 import {
   misaDataSourceApi,
   type MisaProduct,
   type MisaStock,
+  type MisaInventoryBalance,
 } from "../../api/misa-data-source";
 import { Pagination } from "../../components/commons/Pagination";
 import { MisaSearchBar } from "../../components/commons/MisaSearchBar";
@@ -51,6 +52,14 @@ export default function CategoryManagement() {
   const [stocksLimit, setStocksLimit] = useState(20);
   const [stocksTotal, setStocksTotal] = useState(0);
 
+  // Inventory balance state
+  const [selectedStock, setSelectedStock] = useState<MisaStock | null>(null);
+  const [inventoryBalance, setInventoryBalance] = useState<
+    MisaInventoryBalance[]
+  >([]);
+  const [inventoryLoading, setInventoryLoading] = useState(false);
+  const [inventorySearch, setInventorySearch] = useState("");
+
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
@@ -85,6 +94,18 @@ export default function CategoryManagement() {
     }
   }, [productsPage, productsLimit, productsSearch]);
 
+  const fetchInventoryBalance = useCallback(async (stockId: string) => {
+    setInventoryLoading(true);
+    try {
+      const data = await misaDataSourceApi.getInventoryBalance(stockId);
+      setInventoryBalance(data || []);
+    } catch (error) {
+      console.error("Error fetching inventory balance:", error);
+    } finally {
+      setInventoryLoading(false);
+    }
+  }, []);
+
   const fetchStocks = useCallback(async () => {
     setStocksLoading(true);
     try {
@@ -101,6 +122,27 @@ export default function CategoryManagement() {
       setStocksLoading(false);
     }
   }, [stocksPage, stocksLimit, stocksSearch]);
+
+  const handleStockClick = (stock: MisaStock) => {
+    if (selectedStock?.id === stock.id) {
+      setSelectedStock(null);
+      setInventoryBalance([]);
+      setInventorySearch("");
+    } else {
+      setSelectedStock(stock);
+      setInventorySearch("");
+      fetchInventoryBalance(stock.stockId);
+    }
+  };
+
+  const filteredInventory = inventoryBalance.filter((item) => {
+    if (!inventorySearch) return true;
+    const searchLow = inventorySearch.toLowerCase();
+    return (
+      item.inventoryItemCode.toLowerCase().includes(searchLow) ||
+      item.inventoryItemName.toLowerCase().includes(searchLow)
+    );
+  });
 
   useEffect(() => {
     if (activeTab === "customers") {
@@ -748,118 +790,290 @@ export default function CategoryManagement() {
             </div>
           )}
 
-          {/* Table */}
-          <div className="bg-white rounded-lg border border-gray-200 flex-1 flex flex-col min-h-0 overflow-hidden">
-            {/* Header with total */}
-            <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
-              <span className="text-sm font-medium text-gray-700">
-                Tổng:{" "}
-                <span className="text-blue-600 font-bold">{stocksTotal}</span>{" "}
-                kho
-              </span>
-            </div>
-            <div className="overflow-auto flex-1">
-              <table className="min-w-max w-full border-collapse">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 left-0 bg-gray-50 z-30 border-r border-gray-200 min-w-[120px]">
-                      Mã kho
-                    </th>
-                    <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 left-[120px] bg-gray-50 z-30 border-r border-gray-200 min-w-[200px]">
-                      Tên kho
-                    </th>
-                    <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 bg-gray-50 z-20 border-r border-gray-200">
-                      Mô tả
-                    </th>
-                    <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 bg-gray-50 z-20 border-r border-gray-200">
-                      Chi nhánh
-                    </th>
-                    <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 bg-gray-50 z-20 border-r border-gray-200">
-                      TK kho
-                    </th>
-                    <th className="px-3 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 bg-gray-50 z-20">
-                      Trạng thái
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {stocksLoading ? (
+          <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
+            <div
+              className={`bg-white rounded-lg border border-gray-200 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ${
+                selectedStock ? "w-2/3" : "w-full"
+              }`}
+            >
+              {/* Header with total */}
+              <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+                <span className="text-sm font-medium text-gray-700">
+                  Tổng:{" "}
+                  <span className="text-blue-600 font-bold">{stocksTotal}</span>{" "}
+                  kho
+                </span>
+              </div>
+              <div className="overflow-auto flex-1">
+                <table className="min-w-max w-full border-collapse">
+                  <thead className="bg-gray-50 sticky top-0 z-20 shadow-sm">
                     <tr>
-                      <td
-                        colSpan={6}
-                        className="px-4 py-8 text-center text-gray-500"
-                      >
-                        <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
-                        Đang tải...
-                      </td>
+                      <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap border-r border-gray-200 min-w-[120px] bg-gray-50">
+                        Mã kho
+                      </th>
+                      <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap border-r border-gray-200 min-w-[200px] bg-gray-50">
+                        Tên kho
+                      </th>
+                      <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap border-r border-gray-200 bg-gray-50">
+                        Mô tả
+                      </th>
+                      <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200 bg-gray-50">
+                        Chi nhánh
+                      </th>
+                      <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200 bg-gray-50">
+                        TK kho
+                      </th>
+                      <th className="px-3 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider bg-gray-50">
+                        Trạng thái
+                      </th>
                     </tr>
-                  ) : stocks.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="px-4 py-8 text-center text-gray-500"
-                      >
-                        Chưa có dữ liệu kho. Vui lòng tạo nguồn dữ liệu "stock"
-                        và sync từ MISA.
-                      </td>
-                    </tr>
-                  ) : (
-                    stocks.map((stock) => (
-                      <tr key={stock.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-3 text-sm font-medium text-gray-900 whitespace-nowrap sticky left-0 bg-white z-10 border-r border-gray-200 min-w-[120px]">
-                          {stock.stockCode}
-                        </td>
-                        <td className="px-3 py-3 text-sm text-gray-900 min-w-[200px] max-w-[300px] sticky left-[120px] bg-white z-10 border-r border-gray-200">
-                          <div className="truncate" title={stock.stockName}>
-                            {stock.stockName}
-                          </div>
-                        </td>
-                        <td className="px-3 py-3 text-sm text-gray-600 min-w-[200px] max-w-[300px] border-r border-gray-200">
-                          <div
-                            className="truncate"
-                            title={stock.description || ""}
-                          >
-                            {stock.description || "-"}
-                          </div>
-                        </td>
-                        <td className="px-3 py-3 text-sm text-gray-600 min-w-[200px] max-w-[300px] border-r border-gray-200">
-                          <div
-                            className="truncate"
-                            title={stock.branchName || ""}
-                          >
-                            {stock.branchName || "-"}
-                          </div>
-                        </td>
-                        <td className="px-3 py-3 text-sm text-gray-600 whitespace-nowrap border-r border-gray-200 font-mono">
-                          {stock.inventoryAccount || "-"}
-                        </td>
-                        <td className="px-3 py-3 text-sm text-center">
-                          {stock.inactive ? (
-                            <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
-                              Ngừng sử dụng
-                            </span>
-                          ) : (
-                            <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                              Hoạt động
-                            </span>
-                          )}
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {stocksLoading ? (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-4 py-8 text-center text-gray-500"
+                        >
+                          <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
+                          Đang tải...
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : stocks.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-4 py-8 text-center text-gray-500"
+                        >
+                          Chưa có dữ liệu kho. Vui lòng tạo nguồn dữ liệu
+                          "stock" và sync từ MISA.
+                        </td>
+                      </tr>
+                    ) : (
+                      stocks.map((stock) => (
+                        <tr
+                          key={stock.id}
+                          className={`hover:bg-blue-50 cursor-pointer transition-colors ${
+                            selectedStock?.id === stock.id ? "bg-blue-100" : ""
+                          }`}
+                          onClick={() => handleStockClick(stock)}
+                        >
+                          <td className="px-3 py-3 text-sm font-medium border-r border-gray-200">
+                            {stock.stockCode}
+                          </td>
+                          <td className="px-3 py-3 text-sm border-r border-gray-200">
+                            <div className="truncate" title={stock.stockName}>
+                              {stock.stockName}
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 text-sm text-gray-600 border-r border-gray-200">
+                            <div
+                              className="truncate"
+                              title={stock.description || ""}
+                            >
+                              {stock.description || "-"}
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 text-sm text-gray-600 border-r border-gray-200">
+                            <div
+                              className="truncate"
+                              title={stock.branchName || ""}
+                            >
+                              {stock.branchName || "-"}
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 text-sm text-gray-600 whitespace-nowrap border-r border-gray-200 font-mono">
+                            {stock.inventoryAccount || "-"}
+                          </td>
+                          <td className="px-3 py-3 text-sm text-center">
+                            {stock.inactive ? (
+                              <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                Ngừng sử dụng
+                              </span>
+                            ) : (
+                              <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                Hoạt động
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <Pagination
+                page={stocksPage}
+                limit={stocksLimit}
+                total={stocksTotal}
+                onPageChange={setStocksPage}
+                onLimitChange={handleStocksLimitChange}
+                className="flex-shrink-0"
+              />
             </div>
 
-            {/* Pagination */}
-            <Pagination
-              page={stocksPage}
-              limit={stocksLimit}
-              total={stocksTotal}
-              onPageChange={setStocksPage}
-              onLimitChange={handleStocksLimitChange}
-              className="flex-shrink-0"
-            />
+            {/* Sidebar Detail Panel */}
+            {selectedStock && (
+              <div className="w-[450px] bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-right duration-300 shadow-lg shrink-0">
+                <div className="px-4 py-3 bg-blue-600 text-white flex justify-between items-center flex-shrink-0">
+                  <div className="flex items-center gap-3">
+                    <Warehouse className="w-5 h-5 flex-shrink-0" />
+                    <div className="truncate">
+                      <h3 className="font-bold text-xs uppercase tracking-wide truncate">
+                        Tồn kho: {selectedStock.stockName}
+                      </h3>
+                      <p className="text-[10px] opacity-80 uppercase">
+                        {selectedStock.stockCode}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedStock(null);
+                      setInventorySearch("");
+                    }}
+                    className="p-1.5 hover:bg-white/20 rounded-full transition-colors flex-shrink-0"
+                    title="Đóng"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Local Search for Inventory */}
+                <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Tìm mã hoặc tên vật tư..."
+                      className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      value={inventorySearch}
+                      onChange={(e) => setInventorySearch(e.target.value)}
+                    />
+                    <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </div>
+                    {inventorySearch && (
+                      <button
+                        onClick={() => setInventorySearch("")}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-auto">
+                  <table className="min-w-full border-collapse">
+                    <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                      <tr>
+                        <th className="px-3 py-2 text-left text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 min-w-[120px]">
+                          Vật tư
+                        </th>
+                        <th className="px-2 py-2 text-right text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-r border-gray-200">
+                          Đầu kỳ
+                        </th>
+                        <th className="px-2 py-2 text-right text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-r border-gray-200">
+                          Nhập
+                        </th>
+                        <th className="px-2 py-2 text-right text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-r border-gray-200">
+                          Xuất
+                        </th>
+                        <th className="px-2 py-2 text-right text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-r border-gray-200">
+                          Cuối kỳ
+                        </th>
+                        <th className="px-3 py-2 text-right text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                          Loại
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {inventoryLoading ? (
+                        <tr>
+                          <td
+                            colSpan={4}
+                            className="px-4 py-12 text-center text-gray-500"
+                          >
+                            <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
+                            Đang tải...
+                          </td>
+                        </tr>
+                      ) : filteredInventory.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={6}
+                            className="px-4 py-12 text-center text-gray-500 italic"
+                          >
+                            {inventorySearch
+                              ? "Không tìm thấy vật tư phù hợp."
+                              : "Không có tồn kho."}
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredInventory.map((item, idx) => (
+                          <tr
+                            key={`${item.inventoryItemId}-${idx}`}
+                            className="hover:bg-blue-50/50 transition-colors"
+                          >
+                            <td className="px-3 py-2 text-xs border-r border-gray-200">
+                              <div className="font-semibold text-gray-900 line-clamp-1">
+                                {item.inventoryItemCode}
+                              </div>
+                              <div className="text-[10px] text-gray-500 line-clamp-1">
+                                {item.inventoryItemName}
+                              </div>
+                            </td>
+                            <td className="px-2 py-2 text-xs text-right font-mono text-gray-600 border-r border-gray-200 align-top">
+                              {Math.floor(item.openingQuantity || 0)}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-right font-mono text-gray-600 border-r border-gray-200 align-top">
+                              {Math.floor(item.totalInQuantity || 0)}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-right font-mono text-gray-600 border-r border-gray-200 align-top">
+                              {Math.floor(item.totalOutQuantity || 0)}
+                            </td>
+                            <td className="px-2 py-2 text-xs text-right font-mono text-gray-600 border-r border-gray-200 align-top">
+                              {Math.floor(item.closingQuantity || 0)}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-right font-mono font-bold text-blue-700 align-top">
+                              <div>
+                                {item.balanceQuantity?.toLocaleString("vi-VN")}
+                              </div>
+                              <div className="text-[9px] text-gray-400 font-normal">
+                                {item.unitName || "-"}
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {!inventoryLoading && filteredInventory.length > 0 && (
+                  <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 flex justify-between items-center flex-shrink-0">
+                    <span className="text-[10px] text-gray-500">
+                      Hiển thị {filteredInventory.length} mặt hàng
+                      {inventorySearch && ` (lọc từ ${inventoryBalance.length})`}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
