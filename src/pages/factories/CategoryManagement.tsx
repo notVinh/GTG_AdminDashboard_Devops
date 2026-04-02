@@ -946,7 +946,7 @@ export default function CategoryManagement() {
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Tìm mã hoặc tên vật tư..."
+                      placeholder="Tìm mã hoặc tên sản phẩm..."
                       className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                       value={inventorySearch}
                       onChange={(e) => setInventorySearch(e.target.value)}
@@ -982,7 +982,7 @@ export default function CategoryManagement() {
                     <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
                       <tr>
                         <th className="px-3 py-2 text-left text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 min-w-[120px]">
-                          Vật tư
+                          Sản phẩm
                         </th>
                         <th className="px-2 py-2 text-right text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-r border-gray-200">
                           Đầu kỳ
@@ -1068,7 +1068,8 @@ export default function CategoryManagement() {
                   <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 flex justify-between items-center flex-shrink-0">
                     <span className="text-[10px] text-gray-500">
                       Hiển thị {filteredInventory.length} mặt hàng
-                      {inventorySearch && ` (lọc từ ${inventoryBalance.length})`}
+                      {inventorySearch &&
+                        ` (lọc từ ${inventoryBalance.length})`}
                     </span>
                   </div>
                 )}
