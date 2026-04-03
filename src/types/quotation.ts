@@ -31,6 +31,8 @@ export interface ProductType {
   categoryId: number;
   order: number;
   model: string;
+  misaModel?: string;
+  inventoryBalance?: any[]; // Thêm trường này để lưu thông tin tồn kho nếu cần
 }
 
 export interface ProductTranslationType {

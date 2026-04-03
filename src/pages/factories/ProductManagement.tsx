@@ -409,6 +409,7 @@ const ProductModal = ({
     videos: string[];
     translations: ProductTranslationType[];
     model: string;
+    misaModel?: string;
   }>({
     id: product?.id || "",
     brand: product?.brand || "",
@@ -419,6 +420,7 @@ const ProductModal = ({
     videos: product?.videos || [],
     translations: product?.translations || createListTemp,
     model: product?.model || "",
+    misaModel: product?.misaModel || "",
   });
 
   // --- Logic Xử lý Features (Mảng String) ---
@@ -598,6 +600,18 @@ const ProductModal = ({
                 value={formData.model}
                 onChange={(e) =>
                   setFormData({ ...formData, model: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1">
+                Misa Model
+              </label>
+              <input
+                className="w-full bg-slate-100 border-none rounded-2xl p-4 font-mono text-indigo-600 font-bold "
+                value={formData.misaModel}
+                onChange={(e) =>
+                  setFormData({ ...formData, misaModel: e.target.value })
                 }
               />
             </div>
