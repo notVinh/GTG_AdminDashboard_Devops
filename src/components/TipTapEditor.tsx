@@ -292,7 +292,7 @@ const TiptapEditor = ({
 
       {/* Editor Content - Thêm class bulletStyle vào đây */}
       <div
-        className={`bg-white overflow-y-auto custom-scrollbar bullet-type-${bulletStyle}`}
+        className={`bg-white overflow-y-auto custom-scrollbar bullet-type-${bulletStyle} h-[480px]`}
       >
         <EditorContent editor={editor} />
       </div>
