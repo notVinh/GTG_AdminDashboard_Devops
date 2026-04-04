@@ -714,68 +714,75 @@ const DetailModal = ({
         </div>
         <div className="p-8 max-h-[60vh] overflow-y-auto space-y-3 bg-slate-50">
           {products.length > 0 ? (
-            products.map((prod, index) => (
-              <div
-                key={prod.id}
-                className="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm group"
-              >
-                <div className="text-gray-500 text-sm">#{prod.order}</div>
-                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-indigo-600 transition-colors ml-4">
-                  {prod.images?.length > 0 ? (
-                    <img src={(prod?.images as any[])[0]} alt="hinhanh" />
-                  ) : (
-                    <PackageIcon className="w-6 h-6 text-indigo-400 group-hover:text-white" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-black text-slate-800 uppercase text-sm">
-                    {prod.translations?.find(
-                      (t) => t.languageCode === currentLang,
-                    )?.name ||
-                      prod.translations[0]?.name ||
-                      "N.A"}
-                  </h4>
-                  <p className="text-[10px] text-slate-400 font-mono">
-                    ID: #{prod.id}
-                  </p>
-                  <p className="text-[10px] text-slate-400 font-mono">
-                    Model: {prod.model}
-                  </p>
-                  <div className="text-[10px] text-slate-400 font-mono flex">
-                    Tồn kho: {prod.inventoryBalance?.length}
-                    <div onClick={() => setSelectedProduct(prod)}>
-                      <span className="text-[10px] font-black uppercase text-indigo-600 ml-4 cursor-pointer hover:underline">
-                        Xem kho
-                      </span>
+            products.map((prod, index) => {
+              const totalQty = prod?.inventoryBalance?.reduce(
+                (sum, s) => sum + (s.closingQuantity || 0),
+                0,
+              );
+              return (
+                <div
+                  key={prod.id}
+                  className="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm group"
+                >
+                  <div className="text-gray-500 text-sm">#{prod.order}</div>
+                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-indigo-600 transition-colors ml-4">
+                    {prod.images?.length > 0 ? (
+                      <img src={(prod?.images as any[])[0]} alt="hinhanh" />
+                    ) : (
+                      <PackageIcon className="w-6 h-6 text-indigo-400 group-hover:text-white" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-black text-slate-800 uppercase text-sm">
+                      {prod.translations?.find(
+                        (t) => t.languageCode === currentLang,
+                      )?.name ||
+                        prod.translations[0]?.name ||
+                        "N.A"}
+                    </h4>
+                    <p className="text-[10px] text-slate-400 font-mono">
+                      ID: #{prod.id}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-mono">
+                      Model: {prod.model}
+                    </p>
+                    <div className="text-[10px] text-slate-400 font-mono flex">
+                      Tồn kho: {totalQty || 0}{" "}
+                      {totalQty > 0 ? "sản phẩm" : "hết hàng"}
+                      <div onClick={() => setSelectedProduct(prod)}>
+                        <span className="text-[10px] font-black uppercase text-indigo-600 ml-4 cursor-pointer hover:underline">
+                          Xem kho
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <span className="text-indigo-600 font-black text-sm mr-20">
-                  {new Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }).format(prod.originalPrice)}
-                </span>
+                  <span className="text-indigo-600 font-black text-sm mr-20">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(prod.originalPrice)}
+                  </span>
 
-                <div className="flex items-center gap-1">
-                  <button
-                    disabled={index === 0}
-                    onClick={() => onMoveProduct(prod, "up", products)}
-                    className={`p-1.5 rounded-lg transition ${index === 0 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
-                  >
-                    <ChevronUpIcon className="w-4 h-4" />
-                  </button>
-                  <button
-                    disabled={index === products.length - 1}
-                    onClick={() => onMoveProduct(prod, "down", products)}
-                    className={`p-1.5 rounded-lg transition ${index === products.length - 1 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
-                  >
-                    <ChevronDownIcon className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      disabled={index === 0}
+                      onClick={() => onMoveProduct(prod, "up", products)}
+                      className={`p-1.5 rounded-lg transition ${index === 0 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
+                    >
+                      <ChevronUpIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      disabled={index === products.length - 1}
+                      onClick={() => onMoveProduct(prod, "down", products)}
+                      className={`p-1.5 rounded-lg transition ${index === products.length - 1 ? "text-slate-200" : "text-indigo-600 hover:bg-indigo-100"}`}
+                    >
+                      <ChevronDownIcon className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="text-center py-10 text-slate-400 font-bold uppercase text-xs">
               Chưa có sản phẩm nào

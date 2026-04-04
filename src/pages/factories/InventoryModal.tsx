@@ -27,20 +27,29 @@ const InventoryModal = ({
 }: InventoryModalProps) => {
   if (!isOpen) return null;
 
-  // Lọc trùng theo stockCode để hiển thị danh sách kho duy nhất
-  const uniqueStocks = inventoryData.reduce((acc: any[], current) => {
-    const x = acc.find((item) => item.stockCode === current.stockCode);
-    if (!x) return acc.concat([current]);
-    return acc;
-  }, []);
+  // // Lọc trùng theo stockCode để hiển thị danh sách kho duy nhất
+  // const uniqueStocks = inventoryData.reduce((acc: any[], current) => {
+  //   const x = acc.find((item) => item.stockCode === current.stockCode);
+  //   if (!x) return acc.concat([current]);
+  //   return acc;
+  // }, []);
 
-  const totalQty = uniqueStocks.reduce(
-    (sum, s) => sum + (s.closingQuantity || 0),
+  // const totalQty = uniqueStocks.reduce(
+  //   (sum, s) => sum + (s.closingQuantity || 0),
+  //   0,
+  // );
+
+  // 1. Tính tổng tất cả số lượng từ 294 dòng
+  const totalQty = inventoryData.reduce(
+    (sum, item) => sum + (Number(item.closingQuantity) || 0),
     0,
   );
 
+  // 2. Không lọc trùng nữa, dùng luôn mảng gốc
+  const displayData = inventoryData;
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 ">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
@@ -48,7 +57,7 @@ const InventoryModal = ({
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-slate-100">
+      <div className="relative max-h-[98vh] bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-slate-100">
         {/* Header */}
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-4">
@@ -99,62 +108,60 @@ const InventoryModal = ({
 
           {/* Danh sách thẻ kho chi tiết */}
           <div className="grid grid-cols-1 gap-4 max-h-[50vh] overflow-y-auto pr-3 custom-scrollbar">
-            {uniqueStocks.map((stock, idx) => (
+            {displayData.map((item, idx) => (
               <div
-                key={idx}
-                className="group relative flex flex-col md:flex-row md:items-center justify-between p-6 bg-white border border-slate-100 rounded-[2rem] hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-50/50 transition-all"
+                key={item.id || idx} // Nên dùng id từ API nếu có để tối ưu render
+                className="group relative flex flex-col md:flex-row md:items-center justify-between p-6 bg-white border border-slate-100 rounded-[2rem] hover:border-indigo-300 hover:shadow-xl transition-all"
               >
-                {/* Left Side: Thông tin Kho & Vật tư */}
+                {/* Bên trái: Kho & Vật tư */}
                 <div className="flex-1 space-y-4">
-                  {/* Row 1: Thông tin Kho */}
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
                       <MapPin size={18} />
                     </div>
                     <div>
                       <span className="text-[9px] font-black text-indigo-500 font-mono border border-indigo-100 px-1.5 py-0.5 rounded uppercase">
-                        {stock.stockCode}
+                        {item.stockCode}
                       </span>
                       <h4 className="text-sm font-black text-slate-800 uppercase ml-2 inline-block">
-                        {stock.stockName}
+                        {item.stockName}
                       </h4>
                     </div>
                   </div>
 
-                  {/* Row 2: Thông tin Vật tư (Phần bạn muốn bổ sung) */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 ml-11">
                     <div className="flex items-center gap-2">
                       <Fingerprint size={14} className="text-slate-400" />
-                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">
                         Mã VT:{" "}
                         <span className="text-slate-900 font-mono">
-                          {stock.inventoryItemCode}
+                          {item.inventoryItemCode}
                         </span>
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Tag size={14} className="text-slate-400" />
-                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">
                         Tên VT:{" "}
                         <span className="text-slate-700">
-                          {stock.inventoryItemName}
+                          {item.inventoryItemName}
                         </span>
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Right Side: Số lượng tồn */}
+                {/* Bên phải: Số lượng */}
                 <div className="mt-4 md:mt-0 md:pl-6 md:border-l md:border-slate-50 flex flex-col items-end justify-center min-w-[120px]">
                   <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">
                     Số lượng tồn
                   </p>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
-                      {stock.closingQuantity}
+                    <span className="text-2xl font-black text-slate-900 group-hover:text-indigo-600">
+                      {item.closingQuantity}
                     </span>
                     <span className="text-[10px] font-black text-slate-400 uppercase">
-                      {stock.unitName || "Bộ"}
+                      {item.unitName || "Bộ"}
                     </span>
                   </div>
                 </div>
