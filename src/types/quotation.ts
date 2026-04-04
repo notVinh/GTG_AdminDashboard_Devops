@@ -62,6 +62,7 @@ export interface QuotationType {
   status: "pending" | "sent" | "confirmed";
   totalPrice: number;
   items: QuotationItemType[];
+  createdAt: string;
 }
 
 export const languageListItem: string[] = ["vi", "en", "zh"];

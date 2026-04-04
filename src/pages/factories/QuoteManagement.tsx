@@ -6,6 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import type { QuotationItemType, QuotationType } from "../../types/quotation";
 import ManualOrderForm from "../../components/ManualOrderForm";
+import { formatVN } from "../../utils/dateHelpers";
 
 export default function QuoteManagement() {
   const [quotations, setQuotations] = useState<QuotationType[]>([]);
@@ -66,6 +67,7 @@ export default function QuoteManagement() {
     quotationId: number,
     totalPrice: number,
   ) => {
+    console.log(items);
     try {
       await axios.patch(
         `${import.meta.env.VITE_API_URL}/quotations/admin/update-details`,
@@ -138,6 +140,7 @@ export default function QuoteManagement() {
     printWindow.print();
   };
 
+  console.log(quotations);
   return (
     <div className="p-8 bg-gray-50 min-h-screen font-sans text-slate-900">
       <div className="max-w-6xl mx-auto">
@@ -152,6 +155,7 @@ export default function QuoteManagement() {
           <table className="w-full text-left">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase">
               <tr>
+                <th className="p-4">Thời gian</th>
                 <th className="p-4">Khách hàng</th>
                 <th className="p-4">Sản phẩm</th>
                 <th className="p-4">Tổng tiền</th>
@@ -162,6 +166,13 @@ export default function QuoteManagement() {
             <tbody className="divide-y divide-slate-100">
               {quotations.map((q) => (
                 <tr key={q.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="p-4 ">
+                    <div className="font-semibold">{formatVN(q.createdAt)}</div>
+
+                    {/* <div className="text-xs text-slate-500">
+                      {q.customerEmail}
+                    </div> */}
+                  </td>
                   <td className="p-4 ">
                     <div className="font-semibold">{q.customerName}</div>
                     <div className="text-xs text-slate-500">
