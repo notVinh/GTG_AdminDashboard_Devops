@@ -115,7 +115,16 @@ export default function Sidebar({
         </button>
         {hasChildren && isExpanded && !isCollapsed && (
           <div className="mt-1 space-y-1">
-            {item.children?.map((child) => renderSidebarItem(child, level + 1))}
+            {item.children?.map((child) => {
+              if (child.superAdminOnly) {
+                return (
+                  <SuperAdminOnly key={child.id}>
+                    {renderSidebarItem(child, level + 1)}
+                  </SuperAdminOnly>
+                );
+              }
+              return renderSidebarItem(child, level + 1);
+            })}
           </div>
         )}
       </div>

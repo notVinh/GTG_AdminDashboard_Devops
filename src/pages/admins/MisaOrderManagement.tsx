@@ -959,6 +959,7 @@ export default function MisaOrderManagement() {
       priority: selectedOrder.priority || null,
       localDeliveryStatus: selectedOrder.localDeliveryStatus || null,
       saleType: selectedOrder.saleType || null,
+      backDate: selectedOrder.backDate || null,
       receiverName: selectedOrder.receiverName || null,
       receiverPhone: selectedOrder.receiverPhone || null,
       specificAddress: selectedOrder.specificAddress || null,
@@ -1576,6 +1577,9 @@ export default function MisaOrderManagement() {
                       Loại bán/cho thuê
                     </th>
                     <th className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[100px]">
+                      Số ngày cho mượn/thuê (nếu có)
+                    </th>
+                    <th className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[100px]">
                       Người nhận
                     </th>
                     <th className="px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider sticky top-0 bg-gray-50 z-20 border-r border-gray-200 w-[100px]">
@@ -1840,6 +1844,12 @@ export default function MisaOrderManagement() {
                           )}
                           {renderEditableTextCell(
                             order,
+                            "backDate",
+                            "w-[100px]",
+                            "Số ngày trả hàng...",
+                          )}
+                          {renderEditableTextCell(
+                            order,
                             "receiverName",
                             "w-[100px]",
                             "Tên người nhận",
@@ -1990,8 +2000,11 @@ export default function MisaOrderManagement() {
 
           {/* Order Details Panel - inline collapsible */}
           {showDetailPanel && selectedOrder && (
-          <div className="bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden flex-shrink-0" style={{ height: "38vh" }}>
-            <>
+            <div
+              className="bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden flex-shrink-0"
+              style={{ height: "38vh" }}
+            >
+              <>
                 {/* Detail Header */}
                 <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -2009,48 +2022,48 @@ export default function MisaOrderManagement() {
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                  {/* Edit/Save/Cancel buttons for non-draft orders */}
-                  {!canEditInline(selectedOrder) && (
-                    <div className="flex items-center gap-1">
-                      {detailEditMode ? (
-                        <>
+                    {/* Edit/Save/Cancel buttons for non-draft orders */}
+                    {!canEditInline(selectedOrder) && (
+                      <div className="flex items-center gap-1">
+                        {detailEditMode ? (
+                          <>
+                            <button
+                              onClick={cancelDetailEdit}
+                              disabled={updating}
+                              className="px-2 py-0.5 text-[12px] text-gray-600 bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                            >
+                              Hủy
+                            </button>
+                            <button
+                              onClick={saveDetailEdit}
+                              disabled={updating}
+                              className="px-2 py-0.5 text-[12px] text-white bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1"
+                            >
+                              {updating && (
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                              )}
+                              Lưu
+                            </button>
+                          </>
+                        ) : (
                           <button
-                            onClick={cancelDetailEdit}
-                            disabled={updating}
-                            className="px-2 py-0.5 text-[12px] text-gray-600 bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                            onClick={startDetailEdit}
+                            className="px-2 py-0.5 text-[12px] text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 flex items-center gap-1"
                           >
-                            Hủy
+                            <Pencil className="w-3 h-3" />
+                            Sửa
                           </button>
-                          <button
-                            onClick={saveDetailEdit}
-                            disabled={updating}
-                            className="px-2 py-0.5 text-[12px] text-white bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1"
-                          >
-                            {updating && (
-                              <RefreshCw className="w-3 h-3 animate-spin" />
-                            )}
-                            Lưu
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={startDetailEdit}
-                          className="px-2 py-0.5 text-[12px] text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 flex items-center gap-1"
-                        >
-                          <Pencil className="w-3 h-3" />
-                          Sửa
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {/* Close / hide panel button */}
-                  <button
-                    onClick={() => setShowDetailPanel(false)}
-                    title="Ẩn sản phẩm"
-                    className="ml-1 flex items-center justify-center w-6 h-6 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                        )}
+                      </div>
+                    )}
+                    {/* Close / hide panel button */}
+                    <button
+                      onClick={() => setShowDetailPanel(false)}
+                      title="Ẩn sản phẩm"
+                      className="ml-1 flex items-center justify-center w-6 h-6 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -2419,7 +2432,7 @@ export default function MisaOrderManagement() {
                   </table>
                 </div>
               </>
-          </div>
+            </div>
           )}
         </div>
       )}

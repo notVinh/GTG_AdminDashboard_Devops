@@ -33,6 +33,7 @@ import {
   ChevronDown,
   ChevronUp,
   Trash2,
+  Timer,
 } from "lucide-react";
 import {
   misaDataSourceApi,
@@ -2506,6 +2507,7 @@ export default function MisaSalesOrderDetailPage() {
       receiverPhone: order.receiverPhone || null,
       goodsStatus: order.goodsStatus || null,
       province: order.province || null,
+      backDate: order.backDate || null,
     });
   };
 
@@ -2984,6 +2986,29 @@ export default function MisaSalesOrderDetailPage() {
                 <option value="Trả hàng">Trả hàng</option>
               </select>
             </div>
+            {editValues.saleType === "Cho mượn" ||
+              (editValues.saleType === "Cho thuê" && (
+                <div>
+                  <label className="text-gray-500 text-sm flex items-center gap-1 mb-1">
+                    <Timer className="w-4 h-4" />
+                    Số ngày cho mượn/thuê (nếu có):
+                  </label>
+                  <input
+                    type="number"
+                    value={editValues.backDate || 0}
+                    onChange={(e) =>
+                      setEditValues({
+                        ...editValues,
+                        backDate: e.target.value
+                          ? Number(e.target.value)
+                          : null,
+                      })
+                    }
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                    placeholder="Nhập số ngày"
+                  />
+                </div>
+              ))}
             <div>
               <label className="text-gray-500 text-sm flex items-center gap-1 mb-1">
                 <CheckCircle className="w-4 h-4" />
@@ -3202,6 +3227,17 @@ export default function MisaSalesOrderDetailPage() {
                       {order.saleType}
                     </span>
                   ) : (
+                    <span className="text-gray-400 italic">Chưa nhập</span>
+                  )}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-500 text-sm flex items-center gap-1">
+                  <Timer className="w-4 h-4" />
+                  Số ngày cho mượn/thuê (nếu có)
+                </span>
+                <p className="font-medium">
+                  {order.backDate || (
                     <span className="text-gray-400 italic">Chưa nhập</span>
                   )}
                 </p>

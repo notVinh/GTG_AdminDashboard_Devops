@@ -52,9 +52,11 @@ import AdminPurchaseRequisitions from "./pages/admins/AdminPurchaseRequisitions"
 import AdminPurchaseRequisitionDetail from "./pages/admins/AdminPurchaseRequisitionDetail";
 import AdminPurchaseOrderManagement from "./pages/admins/AdminPurchaseOrderManagement";
 import AdminPurchaseOrderDetail from "./pages/admins/AdminPurchaseOrderDetail";
+import AdminGeneralRequests from "./pages/admins/AdminGeneralRequests";
+import AdminGeneralRequestDetail from "./pages/admins/AdminGeneralRequestDetail";
 import FactoryAdminDashboard from "./pages/factories/FactoryAdminDashboard";
 import AllNotifications from "./pages/AllNotifications";
-import { SuperAdminOnly, FactoryAdminOnly } from "./components/RoleGuard";
+import { SuperAdminOnly, FactoryAdminOnly, AdminOrEmployee } from "./components/RoleGuard";
 import Login from "./pages/Login";
 import { setGlobalLogout } from "./api/client";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -225,6 +227,10 @@ function AppContent() {
       setTitle("Chi Tiết Đề Xuất Mua Hàng");
     } else if (location.pathname.startsWith("/quan-ly/de-xuat-mua-hang")) {
       setTitle("Quản Lý Đề Xuất Mua Hàng");
+    } else if (location.pathname.match(/\/quan-ly\/yeu-cau-chung\/\d+/)) {
+      setTitle("Chi tiết yêu cầu");
+    } else if (location.pathname.startsWith("/quan-ly/yeu-cau-chung")) {
+      setTitle("Yêu cầu chung");
     } else if (location.pathname.match(/\/quan-ly\/don-mua-hang\/\d+/)) {
       setTitle("Chi Tiết Đơn Mua Hàng");
     } else if (location.pathname.startsWith("/quan-ly/don-mua-hang")) {
@@ -569,6 +575,26 @@ function AppContent() {
                   }
                 >
                   <AdminPurchaseRequisitionDetail />
+                </SuperAdminOnly>
+              }
+            />
+            <Route
+              path="/quan-ly/yeu-cau-chung/:id"
+              element={
+                <SuperAdminOnly
+                  fallback={<AdminOrEmployee><AdminGeneralRequestDetail /></AdminOrEmployee>}
+                >
+                  <AdminGeneralRequestDetail />
+                </SuperAdminOnly>
+              }
+            />
+            <Route
+              path="/quan-ly/yeu-cau-chung"
+              element={
+                <SuperAdminOnly
+                  fallback={<AdminOrEmployee><AdminGeneralRequests /></AdminOrEmployee>}
+                >
+                  <AdminGeneralRequests />
                 </SuperAdminOnly>
               }
             />

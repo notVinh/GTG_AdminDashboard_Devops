@@ -14,7 +14,10 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { purchaseRequisitionApi } from "../../api/purchase-requisition";
-import { misaDataSourceApi, type MisaSaOrderDetail } from "../../api/misa-data-source";
+import {
+  misaDataSourceApi,
+  type MisaSaOrderDetail,
+} from "../../api/misa-data-source";
 import type { PurchaseRequisition } from "../../types/purchase-requisition";
 import { Button } from "../../components/ui/button";
 import { useToast } from "../../contexts/ToastContext";
@@ -29,7 +32,12 @@ interface RejectDialogProps {
   loading: boolean;
 }
 
-function RejectDialog({ isOpen, onClose, onConfirm, loading }: RejectDialogProps) {
+function RejectDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  loading,
+}: RejectDialogProps) {
   const [reason, setReason] = useState<string>("");
 
   if (!isOpen) return null;
@@ -146,7 +154,9 @@ export default function AdminPurchaseRequisitionDetail() {
   const navigate = useNavigate();
   const toast = useToast();
   const { confirm } = useConfirm();
-  const [requisition, setRequisition] = useState<PurchaseRequisition | null>(null);
+  const [requisition, setRequisition] = useState<PurchaseRequisition | null>(
+    null,
+  );
   const [saOrderDetails, setSaOrderDetails] = useState<MisaSaOrderDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -169,7 +179,9 @@ export default function AdminPurchaseRequisitionDetail() {
           // If has misaSaOrderId, load order details
           if (data.misaSaOrderId) {
             try {
-              const orderData = await misaDataSourceApi.getSaOrderWithDetails(data.misaSaOrderId);
+              const orderData = await misaDataSourceApi.getSaOrderWithDetails(
+                data.misaSaOrderId,
+              );
               if (orderData.details) {
                 setSaOrderDetails(orderData.details);
               }
@@ -210,7 +222,8 @@ export default function AdminPurchaseRequisitionDetail() {
 
     const confirmed = await confirm({
       title: "Xác nhận duyệt đề xuất",
-      message: "Bạn có chắc muốn duyệt đề xuất mua hàng này? Sau khi duyệt, những người có quyền tạo đơn mua hàng sẽ nhận được thông báo.",
+      message:
+        "Bạn có chắc muốn duyệt đề xuất mua hàng này? Sau khi duyệt, những người có quyền tạo đơn mua hàng sẽ nhận được thông báo.",
       confirmText: "Duyệt",
       cancelText: "Hủy",
       type: "success",
@@ -253,7 +266,8 @@ export default function AdminPurchaseRequisitionDetail() {
 
     const confirmed = await confirm({
       title: "Xác nhận đã mua hàng",
-      message: "Bạn có chắc muốn xác nhận đã mua hàng cho đề xuất này? Thông báo sẽ được gửi đến người tạo đề xuất và người duyệt.",
+      message:
+        "Bạn có chắc muốn xác nhận đã mua hàng cho đề xuất này? Thông báo sẽ được gửi đến người tạo đề xuất và người duyệt.",
       confirmText: "Xác nhận",
       cancelText: "Hủy",
       type: "info",
@@ -296,7 +310,14 @@ export default function AdminPurchaseRequisitionDetail() {
         isSaOrder: false,
       };
     }
-    return { orderNumber: "-", customerName: null, customerAddress: null, orderDate: null, items: [], isSaOrder: false };
+    return {
+      orderNumber: "-",
+      customerName: null,
+      customerAddress: null,
+      orderDate: null,
+      items: [],
+      isSaOrder: false,
+    };
   };
 
   const getActionButtons = () => {
@@ -315,7 +336,7 @@ export default function AdminPurchaseRequisitionDetail() {
         >
           <CheckCircle className="h-4 w-4 mr-2" />
           Duyệt đề xuất
-        </Button>
+        </Button>,
       );
 
       buttons.push(
@@ -328,7 +349,7 @@ export default function AdminPurchaseRequisitionDetail() {
         >
           <XCircle className="h-4 w-4 mr-2" />
           Từ chối
-        </Button>
+        </Button>,
       );
     }
 
@@ -343,7 +364,7 @@ export default function AdminPurchaseRequisitionDetail() {
         >
           <ShoppingCart className="h-4 w-4 mr-2" />
           Xác nhận mua hàng
-        </Button>
+        </Button>,
       );
     }
 
@@ -378,6 +399,8 @@ export default function AdminPurchaseRequisitionDetail() {
 
   const orderDisplay = getOrderDisplay();
 
+  console.log(requisition.createdAt);
+
   return (
     <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
@@ -397,7 +420,10 @@ export default function AdminPurchaseRequisitionDetail() {
                 Đề xuất {requisition.requisitionNumber}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Ngày tạo: {requisition.createdAt ? format(new Date(requisition.createdAt), "dd/MM/yyyy HH:mm") : "-"}
+                Ngày tạo:{" "}
+                {requisition.createdAt
+                  ? format(new Date(requisition.createdAt), "dd/MM/yyyy HH:mm")
+                  : "-"}
               </p>
             </div>
           </div>
@@ -425,14 +451,18 @@ export default function AdminPurchaseRequisitionDetail() {
               <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
               <div>
                 <div className="text-sm text-gray-500">Số đề xuất</div>
-                <div className="font-medium">{requisition.requisitionNumber}</div>
+                <div className="font-medium">
+                  {requisition.requisitionNumber}
+                </div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Building className="h-5 w-5 text-gray-400 mt-0.5" />
               <div>
                 <div className="text-sm text-gray-500">Nhà máy</div>
-                <div className="font-medium">{requisition.factory?.name || "-"}</div>
+                <div className="font-medium">
+                  {requisition.factory?.name || "-"}
+                </div>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -442,7 +472,9 @@ export default function AdminPurchaseRequisitionDetail() {
                 <div className="font-medium text-blue-600">
                   {orderDisplay.orderNumber}
                   {orderDisplay.isSaOrder && (
-                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">MISA Sync</span>
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                      MISA Sync
+                    </span>
                   )}
                 </div>
                 {orderDisplay.customerName && (
@@ -457,7 +489,9 @@ export default function AdminPurchaseRequisitionDetail() {
                 <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
                 <div>
                   <div className="text-sm text-gray-500">Ghi chú</div>
-                  <div className="font-medium whitespace-pre-wrap">{requisition.notes}</div>
+                  <div className="font-medium whitespace-pre-wrap">
+                    {requisition.notes}
+                  </div>
                 </div>
               </div>
             )}
@@ -480,7 +514,10 @@ export default function AdminPurchaseRequisitionDetail() {
                 </div>
                 {requisition.createdAt && (
                   <div className="text-xs text-gray-400 mt-1">
-                    {format(new Date(requisition.createdAt), "dd/MM/yyyy HH:mm")}
+                    {format(
+                      new Date(requisition.createdAt),
+                      "dd/MM/yyyy HH:mm",
+                    )}
                   </div>
                 )}
               </div>
@@ -495,14 +532,19 @@ export default function AdminPurchaseRequisitionDetail() {
                 )}
                 <div>
                   <div className="text-sm text-gray-500">
-                    {requisition.status === "approved" ? "Người duyệt" : "Người từ chối"}
+                    {requisition.status === "approved"
+                      ? "Người duyệt"
+                      : "Người từ chối"}
                   </div>
                   <div className="font-medium">
                     {requisition.approvedBy?.user?.fullName || "-"}
                   </div>
                   {requisition.approvedAt && (
                     <div className="text-xs text-gray-400 mt-1">
-                      {format(new Date(requisition.approvedAt), "dd/MM/yyyy HH:mm")}
+                      {format(
+                        new Date(requisition.approvedAt),
+                        "dd/MM/yyyy HH:mm",
+                      )}
                     </div>
                   )}
                 </div>
@@ -514,9 +556,13 @@ export default function AdminPurchaseRequisitionDetail() {
                 <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
                 <div>
                   <div className="text-sm text-gray-500">
-                    {requisition.status === "rejected" ? "Lý do từ chối" : "Ghi chú duyệt"}
+                    {requisition.status === "rejected"
+                      ? "Lý do từ chối"
+                      : "Ghi chú duyệt"}
                   </div>
-                  <div className={`font-medium ${requisition.status === "rejected" ? "text-red-600" : ""}`}>
+                  <div
+                    className={`font-medium ${requisition.status === "rejected" ? "text-red-600" : ""}`}
+                  >
                     {requisition.approvalNotes}
                   </div>
                 </div>
@@ -528,13 +574,18 @@ export default function AdminPurchaseRequisitionDetail() {
               <div className="flex items-start gap-3 pt-3 border-t border-gray-200">
                 <ShoppingCart className="h-5 w-5 text-blue-500 mt-0.5" />
                 <div>
-                  <div className="text-sm text-gray-500">Người xác nhận mua hàng</div>
+                  <div className="text-sm text-gray-500">
+                    Người xác nhận mua hàng
+                  </div>
                   <div className="font-medium">
                     {requisition.purchaseConfirmedBy?.user?.fullName || "-"}
                   </div>
                   {requisition.purchaseConfirmedAt && (
                     <div className="text-xs text-gray-400 mt-1">
-                      {format(new Date(requisition.purchaseConfirmedAt), "dd/MM/yyyy HH:mm")}
+                      {format(
+                        new Date(requisition.purchaseConfirmedAt),
+                        "dd/MM/yyyy HH:mm",
+                      )}
                     </div>
                   )}
                 </div>
@@ -545,8 +596,12 @@ export default function AdminPurchaseRequisitionDetail() {
               <div className="flex items-start gap-3">
                 <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
                 <div>
-                  <div className="text-sm text-gray-500">Ghi chú xác nhận mua hàng</div>
-                  <div className="font-medium">{requisition.purchaseConfirmNotes}</div>
+                  <div className="text-sm text-gray-500">
+                    Ghi chú xác nhận mua hàng
+                  </div>
+                  <div className="font-medium">
+                    {requisition.purchaseConfirmNotes}
+                  </div>
                 </div>
               </div>
             )}
@@ -597,66 +652,72 @@ export default function AdminPurchaseRequisitionDetail() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {orderDisplay.isSaOrder ? (
-                  // MisaSaOrderDetail items
-                  (orderDisplay.items as MisaSaOrderDetail[]).map((item, index) => (
-                    <tr key={item.id || index} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {index + 1}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.inventoryItemCode || "-"}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        {item.description || "-"}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.unitName || "-"}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                        {item.quantity?.toLocaleString("vi-VN")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                        {item.unitPrice?.toLocaleString("vi-VN")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
-                        {item.amountOc?.toLocaleString("vi-VN")}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  // MisaOrderItem items (legacy)
-                  (orderDisplay.items as any[]).map((item: any, index: number) => (
-                    <tr key={item.id || index} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {index + 1}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.productCode || "-"}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        {item.productName}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.unit || "-"}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                        {item.quantity?.toLocaleString("vi-VN")}
-                      </td>
-                    </tr>
-                  ))
-                )}
+                {orderDisplay.isSaOrder
+                  ? // MisaSaOrderDetail items
+                    (orderDisplay.items as MisaSaOrderDetail[]).map(
+                      (item, index) => (
+                        <tr key={item.id || index} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {index + 1}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.inventoryItemCode || "-"}
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            {item.description || "-"}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.unitName || "-"}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                            {item.quantity?.toLocaleString("vi-VN")}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                            {item.unitPrice?.toLocaleString("vi-VN")}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                            {item.amountOc?.toLocaleString("vi-VN")}
+                          </td>
+                        </tr>
+                      ),
+                    )
+                  : // MisaOrderItem items (legacy)
+                    (orderDisplay.items as any[]).map(
+                      (item: any, index: number) => (
+                        <tr key={item.id || index} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {index + 1}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.productCode || "-"}
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            {item.productName}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.unit || "-"}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                            {item.quantity?.toLocaleString("vi-VN")}
+                          </td>
+                        </tr>
+                      ),
+                    )}
               </tbody>
               {orderDisplay.isSaOrder && orderDisplay.items.length > 0 && (
                 <tfoot className="bg-gray-50">
                   <tr>
-                    <td colSpan={6} className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    <td
+                      colSpan={6}
+                      className="px-4 py-3 text-right text-sm font-semibold text-gray-700"
+                    >
                       Tổng cộng:
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
                       {(orderDisplay.items as MisaSaOrderDetail[])
                         .reduce((sum, item) => sum + (item.amountOc || 0), 0)
-                        .toLocaleString("vi-VN")} VND
+                        .toLocaleString("vi-VN")}{" "}
+                      VND
                     </td>
                   </tr>
                 </tfoot>

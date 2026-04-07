@@ -26,7 +26,12 @@ interface RejectDialogProps {
   loading: boolean;
 }
 
-function RejectDialog({ isOpen, onClose, onConfirm, loading }: RejectDialogProps) {
+function RejectDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  loading,
+}: RejectDialogProps) {
   const [reason, setReason] = useState<string>("");
 
   if (!isOpen) return null;
@@ -133,7 +138,9 @@ export default function PurchaseRequisitionDetail() {
   const navigate = useNavigate();
   const toast = useToast();
   const { confirm } = useConfirm();
-  const [requisition, setRequisition] = useState<PurchaseRequisition | null>(null);
+  const [requisition, setRequisition] = useState<PurchaseRequisition | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -184,7 +191,8 @@ export default function PurchaseRequisitionDetail() {
 
     const confirmed = await confirm({
       title: "Xác nhận duyệt đề xuất",
-      message: "Bạn có chắc muốn duyệt đề xuất mua hàng này? Sau khi duyệt, những người có quyền tạo đơn mua hàng sẽ nhận được thông báo.",
+      message:
+        "Bạn có chắc muốn duyệt đề xuất mua hàng này? Sau khi duyệt, những người có quyền tạo đơn mua hàng sẽ nhận được thông báo.",
       confirmText: "Duyệt",
       cancelText: "Hủy",
       type: "success",
@@ -238,7 +246,7 @@ export default function PurchaseRequisitionDetail() {
         >
           <CheckCircle className="h-4 w-4 mr-2" />
           Duyệt đề xuất
-        </Button>
+        </Button>,
       );
 
       buttons.push(
@@ -251,7 +259,7 @@ export default function PurchaseRequisitionDetail() {
         >
           <XCircle className="h-4 w-4 mr-2" />
           Từ chối
-        </Button>
+        </Button>,
       );
     }
 
@@ -303,7 +311,10 @@ export default function PurchaseRequisitionDetail() {
                 Đề xuất {requisition.requisitionNumber}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Ngày tạo: {requisition.createdAt ? format(new Date(requisition.createdAt), "dd/MM/yyyy HH:mm") : "-"}
+                Ngày tạo:{" "}
+                {requisition.createdAt
+                  ? format(new Date(requisition.createdAt), "dd/MM/yyyy HH:mm")
+                  : "-"}
               </p>
             </div>
           </div>
@@ -331,13 +342,17 @@ export default function PurchaseRequisitionDetail() {
               <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
               <div>
                 <div className="text-sm text-gray-500">Số đề xuất</div>
-                <div className="font-medium">{requisition.requisitionNumber}</div>
+                <div className="font-medium">
+                  {requisition.requisitionNumber}
+                </div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Package className="h-5 w-5 text-gray-400 mt-0.5" />
               <div>
-                <div className="text-sm text-gray-500">Đơn hàng Misa liên quan</div>
+                <div className="text-sm text-gray-500">
+                  Đơn hàng Misa liên quan
+                </div>
                 <div className="font-medium text-blue-600">
                   {requisition.misaOrder?.orderNumber || "-"}
                 </div>
@@ -353,7 +368,9 @@ export default function PurchaseRequisitionDetail() {
                 <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
                 <div>
                   <div className="text-sm text-gray-500">Ghi chú</div>
-                  <div className="font-medium whitespace-pre-wrap">{requisition.notes}</div>
+                  <div className="font-medium whitespace-pre-wrap">
+                    {requisition.notes}
+                  </div>
                 </div>
               </div>
             )}
@@ -376,7 +393,10 @@ export default function PurchaseRequisitionDetail() {
                 </div>
                 {requisition.createdAt && (
                   <div className="text-xs text-gray-400 mt-1">
-                    {format(new Date(requisition.createdAt), "dd/MM/yyyy HH:mm")}
+                    {format(
+                      new Date(requisition.createdAt),
+                      "dd/MM/yyyy HH:mm",
+                    )}
                   </div>
                 )}
               </div>
@@ -391,14 +411,19 @@ export default function PurchaseRequisitionDetail() {
                 )}
                 <div>
                   <div className="text-sm text-gray-500">
-                    {requisition.status === "approved" ? "Người duyệt" : "Người từ chối"}
+                    {requisition.status === "approved"
+                      ? "Người duyệt"
+                      : "Người từ chối"}
                   </div>
                   <div className="font-medium">
                     {requisition.approvedBy?.user?.fullName || "-"}
                   </div>
                   {requisition.approvedAt && (
                     <div className="text-xs text-gray-400 mt-1">
-                      {format(new Date(requisition.approvedAt), "dd/MM/yyyy HH:mm")}
+                      {format(
+                        new Date(requisition.approvedAt),
+                        "dd/MM/yyyy HH:mm",
+                      )}
                     </div>
                   )}
                 </div>
@@ -410,9 +435,13 @@ export default function PurchaseRequisitionDetail() {
                 <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
                 <div>
                   <div className="text-sm text-gray-500">
-                    {requisition.status === "rejected" ? "Lý do từ chối" : "Ghi chú duyệt"}
+                    {requisition.status === "rejected"
+                      ? "Lý do từ chối"
+                      : "Ghi chú duyệt"}
                   </div>
-                  <div className={`font-medium ${requisition.status === "rejected" ? "text-red-600" : ""}`}>
+                  <div
+                    className={`font-medium ${requisition.status === "rejected" ? "text-red-600" : ""}`}
+                  >
                     {requisition.approvalNotes}
                   </div>
                 </div>
@@ -423,62 +452,64 @@ export default function PurchaseRequisitionDetail() {
       </div>
 
       {/* Misa Order Items */}
-      {requisition.misaOrder?.items && requisition.misaOrder.items.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <div className="p-4 border-b bg-gray-50">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              Danh sách sản phẩm trong đơn hàng ({requisition.misaOrder.items.length})
-            </h2>
-          </div>
+      {requisition.misaOrder?.items &&
+        requisition.misaOrder.items.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="p-4 border-b bg-gray-50">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                Danh sách sản phẩm trong đơn hàng (
+                {requisition.misaOrder.items.length})
+              </h2>
+            </div>
 
-          {/* Desktop Table View */}
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    STT
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Mã hàng
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tên hàng
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ĐVT
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Số lượng
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {requisition.misaOrder.items.map((item, index) => (
-                  <tr key={item.id || index} className="hover:bg-gray-50">
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.productCode || "-"}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-900">
-                      {item.productName}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.unit || "-"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                      {item.quantity?.toLocaleString("vi-VN")}
-                    </td>
+            {/* Desktop Table View */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      STT
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Mã hàng
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tên hàng
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ĐVT
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Số lượng
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {requisition.misaOrder.items.map((item, index) => (
+                    <tr key={item.id || index} className="hover:bg-gray-50">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {item.productCode || "-"}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        {item.productName}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {item.unit || "-"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                        {item.quantity?.toLocaleString("vi-VN")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Reject Dialog */}
       <RejectDialog

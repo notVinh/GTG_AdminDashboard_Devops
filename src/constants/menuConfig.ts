@@ -237,7 +237,6 @@ export const MENU_CONFIG: MenuItemConfig[] = [
     label: "Dữ liệu từ MISA",
     category: "Dữ liệu từ MISA",
     icon: createElement(Database, { className: "h-5 w-5" }),
-    superAdminOnly: true,
     children: [
       {
         id: "category-management",
@@ -262,6 +261,13 @@ export const MENU_CONFIG: MenuItemConfig[] = [
         icon: createElement(FileText, { className: "h-4 w-4" }),
         href: "/quan-ly/de-xuat-mua-hang",
         superAdminOnly: true,
+      },
+      {
+        id: "general-request",
+        label: "Yêu cầu chung",
+        category: "Dữ liệu từ MISA",
+        icon: createElement(FileText, { className: "h-4 w-4" }),
+        href: "/quan-ly/yeu-cau-chung",
       },
       {
         id: "admin-purchase-order",

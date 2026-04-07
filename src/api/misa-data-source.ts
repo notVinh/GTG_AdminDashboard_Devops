@@ -155,6 +155,7 @@ export type MisaSaOrder = {
   priority: string | null; // Độ ưu tiên: Thường, Gấp, Rất Gấp
   localDeliveryStatus: string | null; // Tình trạng giao hàng: Đã giao, Chưa giao
   saleType: string | null; // Loại: Bán, Cho thuê, Cho mượn, Đổi
+  backDate: number | null; // Ngày trả hàng (dự kiến hoặc thực tế)
   receiverName: string | null; // Tên người nhận
   receiverPhone: string | null; // SĐT người nhận
   specificAddress: string | null; // Địa chỉ cụ thể
@@ -229,6 +230,7 @@ export type MisaSaOrderLocalFieldsUpdate = {
   priority?: string | null;
   localDeliveryStatus?: string | null;
   saleType?: string | null;
+  backDate?: number | null;
   receiverName?: string | null;
   receiverPhone?: string | null;
   specificAddress?: string | null;
