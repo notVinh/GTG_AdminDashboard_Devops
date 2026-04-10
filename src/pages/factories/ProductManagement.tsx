@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   PencilIcon,
   TrashIcon,
@@ -19,6 +19,7 @@ import {
   type ProductType,
 } from "../../types/quotation";
 import { formatNumber, parseNumber } from "../../lib/changevnd";
+import InventoryModal from "./InventoryModal";
 
 const API_URL = `${import.meta.env.VITE_API_URL}`;
 
@@ -410,6 +411,7 @@ const ProductModal = ({
     translations: ProductTranslationType[];
     model: string;
     misaModel?: string;
+    inventoryBalance?: any[];
   }>({
     id: product?.id || "",
     brand: product?.brand || "",
@@ -421,7 +423,22 @@ const ProductModal = ({
     translations: product?.translations || createListTemp,
     model: product?.model || "",
     misaModel: product?.misaModel || "",
+    inventoryBalance: product?.inventoryBalance || [],
   });
+
+  const [selectedInventory, setSelectedInventory] = useState<any[] | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const res = await axios.get(`${API_URL}/products/${product?.id}`);
+      setFormData({ ...formData, inventoryBalance: res.data.inventoryBalance });
+    };
+    fetchProduct();
+  }, [product?.id]);
+
+  console.log(formData);
 
   // --- Logic Xử lý Features (Mảng String) ---
   const handleFeatureChange = (lang: string, index: number, value: string) => {
@@ -542,6 +559,12 @@ const ProductModal = ({
     });
     setFormData({ ...formData, translations: newTrans });
   };
+
+  const totalQty = formData.inventoryBalance?.reduce(
+    (sum, s) => sum + (s.closingQuantity || 0),
+    0,
+  );
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
       <div className="bg-white rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[95vh]">
@@ -614,6 +637,18 @@ const ProductModal = ({
                   setFormData({ ...formData, misaModel: e.target.value })
                 }
               />
+            </div>
+            <div className="text-[10px] text-slate-400 font-mono flex">
+              Tồn kho: {totalQty || 0} {totalQty > 0 ? "sản phẩm" : ""}
+              <div
+                onClick={() => {
+                  setSelectedInventory(formData.inventoryBalance || []);
+                }}
+              >
+                <span className="text-[10px] font-black uppercase text-indigo-600 ml-4 cursor-pointer hover:underline">
+                  Xem kho
+                </span>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1">
@@ -981,6 +1016,12 @@ const ProductModal = ({
               </button>
             </div>
           </div>
+          <InventoryModal
+            isOpen={!!selectedInventory}
+            onClose={() => setSelectedInventory(null)}
+            productName={formData?.translations?.[0]?.name || "Sản phẩm"}
+            inventoryData={formData?.inventoryBalance || []}
+          />
         </form>
       </div>
     </div>
