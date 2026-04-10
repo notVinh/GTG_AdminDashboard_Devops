@@ -399,7 +399,7 @@ export default function AdminPurchaseRequisitionDetail() {
 
   const orderDisplay = getOrderDisplay();
 
-  console.log(requisition.createdAt);
+  console.log(requisition);
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
@@ -525,14 +525,16 @@ export default function AdminPurchaseRequisitionDetail() {
 
             {requisition.approvedBy && (
               <div className="flex items-start gap-3">
-                {requisition.status === "approved" ? (
+                {requisition.status === "approved" ||
+                requisition.status === "purchase_confirmed" ? (
                   <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
                 ) : (
                   <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
                 )}
                 <div>
                   <div className="text-sm text-gray-500">
-                    {requisition.status === "approved"
+                    {requisition.status === "approved" ||
+                    requisition.status === "purchase_confirmed"
                       ? "Người duyệt"
                       : "Người từ chối"}
                   </div>
