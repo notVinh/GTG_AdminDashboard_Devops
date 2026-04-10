@@ -1,4 +1,5 @@
 import React, { useState, useEffect, use } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   PencilIcon,
   TrashIcon,
@@ -65,6 +66,8 @@ const createListTemp = [
 ];
 
 const ProductManagement = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,28 +77,11 @@ const ProductManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLang, setSelectedLang] = useState("vi"); // Ngôn ngữ hiển thị bảng
 
-  // const raw = localStorage.getItem("employee_info");
-  // const parsed = raw ? JSON.parse(raw) : { permissions: [] };
-
-  // const fetchData = async () => {
-  //   try {
-  //     // Lấy sản phẩm kèm tham số lang để hiển thị đúng tên trên bảng
-  //     const prodRes = await axios.get(
-  //       `${API_URL}/products?lang=${selectedLang}`,
-  //     );
-  //     setProducts(prodRes.data.data || prodRes.data);
-
-  //     const cateRes = await axios.get(`${API_URL}/categories`);
-
-  //     setCategories(cateRes.data);
-  //     console.log(cateRes);
-  //   } catch (error) {
-  //     console.error("Lỗi load dữ liệu:", error);
-  //   }
-  // };
+  // Đọc page từ URL, mặc định là 1
+  const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
 
   const [pagination, setPagination] = useState({
-    currentPage: 1,
+    currentPage: pageFromUrl,
     totalPages: 1,
     totalItems: 0,
     limit: 10,
@@ -129,7 +115,15 @@ const ProductManagement = () => {
     await Promise.all([fetchProducts, fetchCategories]);
   };
 
+  // Đồng bộ URL khi currentPage thay đổi
   useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        prev.set("page", String(pagination.currentPage));
+        return prev;
+      },
+      { replace: true },
+    );
     fetchData(pagination.currentPage);
   }, [selectedLang, pagination.currentPage]); // Re-fetch khi đổi ngôn ngữ hiển thị
 
@@ -377,7 +371,7 @@ const ProductManagement = () => {
           product={currentProduct}
           categories={categories}
           onClose={() => setIsModalOpen(false)}
-          refreshData={fetchData}
+          refreshData={() => fetchData(pagination.currentPage)}
         />
       )}
     </div>
@@ -498,13 +492,14 @@ const ProductModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
 
+    const { inventoryBalance, ...payload } = formData;
     try {
       if (product) {
-        await axios.patch(`${API_URL}/products/${product.id}`, formData);
+        // Chỉ gửi payload đã loại bỏ inventoryBalance
+        await axios.patch(`${API_URL}/products/${product.id}`, payload);
       } else {
-        await axios.post(`${API_URL}/products`, formData);
+        await axios.post(`${API_URL}/products`, payload);
       }
       refreshData();
       onClose();
