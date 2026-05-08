@@ -1,4 +1,4 @@
-import { http } from './client';
+import { http } from "./client";
 
 export interface MisaCustomer {
   id: number;
@@ -26,6 +26,7 @@ export interface MisaCustomer {
   inactive: boolean;
   createdAt: string;
   updatedAt: string;
+  rank: string | null;
 }
 
 export interface GetCustomersParams {
@@ -39,18 +40,22 @@ export interface GetCustomersResponse {
   total: number;
 }
 
-const API_PATH = '/misa-data-source';
+const API_PATH = "/misa-data-source";
 
 export const misaCustomerApi = {
-  getCustomers: async (params: GetCustomersParams = {}): Promise<GetCustomersResponse> => {
+  getCustomers: async (
+    params: GetCustomersParams = {},
+  ): Promise<GetCustomersResponse> => {
     const { page = 1, limit = 50, search } = params;
     const queryParams = new URLSearchParams();
-    queryParams.append('page', String(page));
-    queryParams.append('limit', String(limit));
+    queryParams.append("page", String(page));
+    queryParams.append("limit", String(limit));
     if (search) {
-      queryParams.append('search', search);
+      queryParams.append("search", search);
     }
-    const response = await http<any>(`${API_PATH}/customers/list?${queryParams.toString()}`);
+    const response = await http<any>(
+      `${API_PATH}/customers/list?${queryParams.toString()}`,
+    );
     return response.data;
   },
 

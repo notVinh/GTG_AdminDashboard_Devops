@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Users, Package, RefreshCw, Warehouse, X } from "lucide-react";
+import { Users, Package, RefreshCw, Warehouse, X, Pen } from "lucide-react";
 import { misaCustomerApi, type MisaCustomer } from "../../api/misa-customer";
 import {
   misaDataSourceApi,
@@ -9,6 +9,7 @@ import {
 } from "../../api/misa-data-source";
 import { Pagination } from "../../components/commons/Pagination";
 import { MisaSearchBar } from "../../components/commons/MisaSearchBar";
+import CustomerModal from "../../components/customer/CustomerModal";
 
 type TabType = "customers" | "products" | "stocks";
 
@@ -59,6 +60,33 @@ export default function CategoryManagement() {
   >([]);
   const [inventoryLoading, setInventoryLoading] = useState(false);
   const [inventorySearch, setInventorySearch] = useState("");
+
+  // phan khach hang
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  // Mở để tạo mới
+  const openCreateModal = () => {
+    setSelectedCustomer(null);
+    setIsCustomerModalOpen(true);
+  };
+
+  // Mở để sửa
+  const openEditModal = (customer: any) => {
+    setSelectedCustomer(customer); // Truyền dữ liệu khách hàng vào đây
+    setIsCustomerModalOpen(true);
+  };
+
+  const handleSave = async (data: any) => {
+    if (selectedCustomer) {
+      // Logic gọi API PUT /api/customer/:id
+      console.log("Đang CẬP NHẬT khách hàng", data);
+    } else {
+      // Logic gọi API POST /api/customer
+      console.log("Đang TẠO MỚI khách hàng", data);
+    }
+    setIsCustomerModalOpen(false);
+  };
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -315,6 +343,8 @@ export default function CategoryManagement() {
     }
   };
 
+  console.log(customers);
+
   return (
     <div className="p-6 h-full flex flex-col">
       {/* Tabs */}
@@ -391,11 +421,17 @@ export default function CategoryManagement() {
           {/* Table */}
           <div className="bg-white rounded-lg border border-gray-200 flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Header with total */}
-            <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+            <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0 flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
                 Tổng: <span className="text-blue-600 font-bold">{total}</span>{" "}
                 khách hàng
               </span>
+              <button
+                className="bg-blue-600 p-2 text-white hover:bg-blue-700 rounded-lg cursor-pointer"
+                onClick={openCreateModal}
+              >
+                Thêm khách hàng
+              </button>
             </div>
             <div className="overflow-auto flex-1">
               <table className="min-w-max w-full border-collapse">
@@ -454,6 +490,13 @@ export default function CategoryManagement() {
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 bg-gray-50 z-20">
                       Loại
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 bg-gray-50 z-20">
+                      Bậc
+                    </th>
+
+                    <th className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap sticky top-0 bg-gray-50 z-20">
+                      Chức năng
                     </th>
                   </tr>
                 </thead>
@@ -550,6 +593,17 @@ export default function CategoryManagement() {
                               : "Tổ chức"}
                           </span>
                         </td>
+                        <td className="px-3 py-3 text-sm text-gray-600 min-w-[150px] break-words border border-gray-200">
+                          {customer.rank || "-"}
+                        </td>
+                        <td className="px-3 py-3 text-sm text-gray-600 min-w-[150px] break-words border border-gray-200 text-center">
+                          <button
+                            onClick={() => openEditModal(customer)}
+                            className="cursor-pointer"
+                          >
+                            <Pen className="text-blue-600 h-5" />
+                          </button>
+                        </td>
                       </tr>
                     ))
                   )}
@@ -567,6 +621,13 @@ export default function CategoryManagement() {
               className="flex-shrink-0"
             />
           </div>
+          {/* <CustomerModal isOpen={true} onSave={() => {}} /> */}
+          <CustomerModal
+            isOpen={isCustomerModalOpen}
+            initialData={selectedCustomer}
+            onClose={() => setIsCustomerModalOpen(false)}
+            // onSave={handleSave}
+          />
         </div>
       )}
 

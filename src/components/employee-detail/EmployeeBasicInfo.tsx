@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
-import { Edit2, Save, X, Camera } from 'lucide-react';
-import { employeeApi } from '../../api/employee';
-import { departmentApi } from '../../api/departments';
-import { positionApi } from '../../api/positions';
-import { teamApi } from '../../api/team';
-import type { Department, Team } from '../../types/department';
-import type { EmployeeWithDetails, PositionItem } from '../../types';
-import { useToast } from '../../contexts/ToastContext';
-import { TimeInput } from '../ui/time-input';
+import { useState, useEffect, useRef } from "react";
+import { Edit2, Save, X, Camera } from "lucide-react";
+import { employeeApi } from "../../api/employee";
+import { departmentApi } from "../../api/departments";
+import { positionApi } from "../../api/positions";
+import { teamApi } from "../../api/team";
+import type { Department, Team } from "../../types/department";
+import type { EmployeeWithDetails, PositionItem } from "../../types";
+import { useToast } from "../../contexts/ToastContext";
+import { TimeInput } from "../ui/time-input";
 
 // Helper: Format time "H:M" hoặc "HH:MM" thành "HH:MM:SS"
 function formatTimeForBackend(time: string): string {
-  if (!time) return '';
-  const [h, m] = time.split(':');
-  const hours = (h || '0').padStart(2, '0');
-  const minutes = (m || '0').padStart(2, '0');
+  if (!time) return "";
+  const [h, m] = time.split(":");
+  const hours = (h || "0").padStart(2, "0");
+  const minutes = (m || "0").padStart(2, "0");
   return `${hours}:${minutes}:00`;
 }
 
@@ -35,29 +35,29 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
-    employeeCode: (employee as any).employeeCode || '',
-    gender: (employee as any).gender || '',
-    phone: employee.user?.phone || '',
-    email: employee.user?.email || '',
-    departmentId: employee.department?.id?.toString() || '',
+    employeeCode: (employee as any).employeeCode || "",
+    gender: (employee as any).gender || "",
+    phone: employee.user?.phone || "",
+    email: employee.user?.email || "",
+    departmentId: employee.department?.id?.toString() || "",
     positionId: employee.positionId.toString(),
-    teamId: (employee as any).teamId?.toString() || '',
-    salary: employee.salary?.toString() || '',
-    status: employee.status || '',
-    salaryType: employee.salaryType || 'daily',
+    teamId: (employee as any).teamId?.toString() || "",
+    salary: employee.salary?.toString() || "",
+    status: employee.status || "",
+    salaryType: employee.salaryType || "daily",
     startDateJob: employee.startDateJob
-      ? new Date(employee.startDateJob).toISOString().split('T')[0]
-      : '',
+      ? new Date(employee.startDateJob).toISOString().split("T")[0]
+      : "",
     endDateJob: employee.endDateJob
-      ? new Date(employee.endDateJob).toISOString().split('T')[0]
-      : '',
+      ? new Date(employee.endDateJob).toISOString().split("T")[0]
+      : "",
     isManager: employee.isManager || false,
     hourStartWork: (employee as any).hourStartWork
       ? (employee as any).hourStartWork.substring(0, 5)
-      : '',
+      : "",
     hourEndWork: (employee as any).hourEndWork
       ? (employee as any).hourEndWork.substring(0, 5)
-      : '',
+      : "",
   });
 
   useEffect(() => {
@@ -72,11 +72,11 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
 
         // Filter positions by selected department (handle both string and number)
         const filteredPositions = posData.filter(
-          (p) => String(p.departmentId) === String(formData.departmentId)
+          (p) => String(p.departmentId) === String(formData.departmentId),
         );
         setPositions(filteredPositions);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -88,7 +88,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
     // Update positions when department changes (handle both string and number)
     if (formData.departmentId) {
       const filteredPositions = allPositions.filter(
-        (p) => String(p.departmentId) === String(formData.departmentId)
+        (p) => String(p.departmentId) === String(formData.departmentId),
       );
       setPositions(filteredPositions);
     } else {
@@ -105,7 +105,9 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
         return;
       }
       try {
-        const list = await teamApi.getByDepartment(Number(formData.departmentId));
+        const list = await teamApi.getByDepartment(
+          Number(formData.departmentId),
+        );
         if (isMounted) setTeams(list || []);
       } catch (_) {
         if (isMounted) setTeams([]);
@@ -124,44 +126,44 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
     setIsEditing(false);
     // Reset form data to original employee data
     setFormData({
-      employeeCode: (employee as any).employeeCode || '',
-      gender: (employee as any).gender || '',
-      phone: employee.user?.phone || '',
-      email: employee.user?.email || '',
-      departmentId: employee.department?.id?.toString() || '',
+      employeeCode: (employee as any).employeeCode || "",
+      gender: (employee as any).gender || "",
+      phone: employee.user?.phone || "",
+      email: employee.user?.email || "",
+      departmentId: employee.department?.id?.toString() || "",
       positionId: employee.positionId.toString(),
-      teamId: (employee as any).teamId?.toString() || '',
-      salary: employee.salary?.toString() || '',
-      status: employee.status || '',
-      salaryType: employee.salaryType || 'daily',
+      teamId: (employee as any).teamId?.toString() || "",
+      salary: employee.salary?.toString() || "",
+      status: employee.status || "",
+      salaryType: employee.salaryType || "daily",
       startDateJob: employee.startDateJob
-        ? new Date(employee.startDateJob).toISOString().split('T')[0]
-        : '',
+        ? new Date(employee.startDateJob).toISOString().split("T")[0]
+        : "",
       endDateJob: employee.endDateJob
-        ? new Date(employee.endDateJob).toISOString().split('T')[0]
-        : '',
+        ? new Date(employee.endDateJob).toISOString().split("T")[0]
+        : "",
       isManager: employee.isManager || false,
       hourStartWork: (employee as any).hourStartWork
         ? (employee as any).hourStartWork.substring(0, 5)
-        : '',
+        : "",
       hourEndWork: (employee as any).hourEndWork
         ? (employee as any).hourEndWork.substring(0, 5)
-        : '',
+        : "",
     });
   };
 
   const handleSave = async () => {
     // Validation
     if (!formData.phone) {
-      showToast('Vui lòng nhập số điện thoại', 'error');
+      showToast("Vui lòng nhập số điện thoại", "error");
       return;
     }
     if (!formData.departmentId) {
-      showToast('Vui lòng chọn phòng ban', 'error');
+      showToast("Vui lòng chọn phòng ban", "error");
       return;
     }
     if (!formData.positionId) {
-      showToast('Vui lòng chọn vị trí', 'error');
+      showToast("Vui lòng chọn vị trí", "error");
       return;
     }
 
@@ -175,57 +177,69 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
         teamId: formData.teamId ? Number(formData.teamId) : null,
         salary: formData.salary ? Number(formData.salary) : undefined,
         status: formData.status || undefined,
-        salaryType: formData.salaryType as 'daily' | 'production',
+        salaryType: formData.salaryType as "daily" | "production",
         startDateJob: formData.startDateJob || undefined,
         endDateJob: formData.endDateJob || undefined,
         isManager: formData.isManager,
-        hourStartWork: formData.hourStartWork ? formatTimeForBackend(formData.hourStartWork) : null,
-        hourEndWork: formData.hourEndWork ? formatTimeForBackend(formData.hourEndWork) : null,
+        hourStartWork: formData.hourStartWork
+          ? formatTimeForBackend(formData.hourStartWork)
+          : null,
+        hourEndWork: formData.hourEndWork
+          ? formatTimeForBackend(formData.hourEndWork)
+          : null,
       };
 
       // Only include employeeCode if it changed
-      if (formData.employeeCode !== ((employee as any).employeeCode || '')) {
+      if (formData.employeeCode !== ((employee as any).employeeCode || "")) {
         payload.employeeCode = formData.employeeCode || undefined;
       }
 
       // Only include gender if it changed
-      if (formData.gender !== ((employee as any).gender || '')) {
+      if (formData.gender !== ((employee as any).gender || "")) {
         payload.gender = formData.gender || undefined;
       }
 
       // Only include phone if it changed
-      if (formData.phone !== (employee.user?.phone || '')) {
+      if (formData.phone !== (employee.user?.phone || "")) {
         payload.phone = formData.phone;
       }
 
       // Only include email if it changed
-      if (formData.email !== (employee.user?.email || '')) {
+      if (formData.email !== (employee.user?.email || "")) {
         payload.email = formData.email || undefined;
       }
 
-      const updatedEmployee = await employeeApi.updateEmployee(employee.id, payload);
+      const updatedEmployee = await employeeApi.updateEmployee(
+        employee.id,
+        payload,
+      );
       onUpdate(updatedEmployee);
       setIsEditing(false);
-      showToast('Cập nhật thông tin thành công!', 'success');
+      showToast("Cập nhật thông tin thành công!", "success");
     } catch (error: any) {
-      console.error('Error updating employee:', error);
-      const errorMessage = error?.response?.data?.errors?.message || error?.message || 'Có lỗi xảy ra khi cập nhật thông tin';
-      showToast(errorMessage, 'error');
+      console.error("Error updating employee:", error);
+      const errorMessage =
+        error?.response?.data?.errors?.message ||
+        error?.message ||
+        "Có lỗi xảy ra khi cập nhật thông tin";
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value, type } = e.target;
 
-    if (type === 'checkbox') {
+    if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData({ ...formData, [name]: checked });
     } else {
       // If department changes, reset position and team
-      if (name === 'departmentId') {
-        setFormData({ ...formData, [name]: value, positionId: '', teamId: '' });
+      if (name === "departmentId") {
+        setFormData({ ...formData, [name]: value, positionId: "", teamId: "" });
       } else {
         setFormData({ ...formData, [name]: value });
       }
@@ -242,13 +256,13 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
 
     // Validate file type
     if (!file.type.match(/^image\/(jpg|jpeg|png|gif)$/)) {
-      showToast('Vui lòng chọn file ảnh (JPG, PNG, GIF)', 'error');
+      showToast("Vui lòng chọn file ảnh (JPG, PNG, GIF)", "error");
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      showToast('Kích thước ảnh không được vượt quá 5MB', 'error');
+      showToast("Kích thước ảnh không được vượt quá 5MB", "error");
       return;
     }
 
@@ -256,16 +270,19 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
       setUploadingAvatar(true);
       const updatedEmployee = await employeeApi.uploadAvatar(employee.id, file);
       onUpdate(updatedEmployee);
-      showToast('Cập nhật avatar thành công!', 'success');
+      showToast("Cập nhật avatar thành công!", "success");
     } catch (error: any) {
-      console.error('Error uploading avatar:', error);
-      const errorMessage = error?.response?.data?.errors?.message || error?.message || 'Có lỗi xảy ra khi upload avatar';
-      showToast(errorMessage, 'error');
+      console.error("Error uploading avatar:", error);
+      const errorMessage =
+        error?.response?.data?.errors?.message ||
+        error?.message ||
+        "Có lỗi xảy ra khi upload avatar";
+      showToast(errorMessage, "error");
     } finally {
       setUploadingAvatar(false);
       // Reset input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -274,7 +291,9 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
     <div className="bg-white rounded-lg shadow">
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Thông tin cơ bản</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Thông tin cơ bản
+        </h2>
         {!isEditing ? (
           <button
             onClick={handleEdit}
@@ -299,7 +318,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
               className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
-              <span>{loading ? 'Đang lưu...' : 'Lưu'}</span>
+              <span>{loading ? "Đang lưu..." : "Lưu"}</span>
             </button>
           </div>
         )}
@@ -314,12 +333,12 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
               {(employee.user as any).photo?.path ? (
                 <img
                   src={(employee.user as any).photo.path}
-                  alt={employee.user?.fullName || '-'}
+                  alt={employee.user?.fullName || "-"}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 text-4xl font-semibold">
-                  {employee.user?.fullName?.charAt(0).toUpperCase() || '-'}
+                  {employee.user?.fullName?.charAt(0).toUpperCase() || "-"}
                 </div>
               )}
             </div>
@@ -368,7 +387,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 disabled={!isEditing}
                 placeholder="Nhập mã nhân viên"
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               />
             </div>
@@ -380,7 +399,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
               </label>
               <input
                 type="text"
-                value={employee.user?.fullName || '-'}
+                value={employee.user?.fullName || "-"}
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 cursor-not-allowed"
               />
@@ -397,7 +416,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               >
                 <option value="">Chọn giới tính</option>
@@ -419,7 +438,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               />
             </div>
@@ -436,7 +455,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               />
             </div>
@@ -453,7 +472,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               />
             </div>
@@ -470,7 +489,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               />
             </div>
@@ -491,7 +510,9 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 </label>
                 <TimeInput
                   value={formData.hourStartWork}
-                  onChange={(value) => setFormData({ ...formData, hourStartWork: value })}
+                  onChange={(value) =>
+                    setFormData({ ...formData, hourStartWork: value })
+                  }
                   disabled={!isEditing}
                   placeholder="Giờ : Phút"
                 />
@@ -504,7 +525,9 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 </label>
                 <TimeInput
                   value={formData.hourEndWork}
-                  onChange={(value) => setFormData({ ...formData, hourEndWork: value })}
+                  onChange={(value) =>
+                    setFormData({ ...formData, hourEndWork: value })
+                  }
                   disabled={!isEditing}
                   placeholder="Giờ : Phút"
                 />
@@ -529,7 +552,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               >
                 <option value="">Chọn phòng ban</option>
@@ -552,11 +575,15 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing || positions.length === 0}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing && positions.length > 0 ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing && positions.length > 0
+                    ? "bg-white"
+                    : "bg-gray-50 text-gray-600"
                 }`}
               >
                 <option value="">
-                  {positions.length === 0 ? 'Không có vị trí trong phòng ban này' : 'Chọn vị trí'}
+                  {positions.length === 0
+                    ? "Không có vị trí trong phòng ban này"
+                    : "Chọn vị trí"}
                 </option>
                 {positions.map((pos) => (
                   <option key={pos.id} value={pos.id}>
@@ -580,17 +607,21 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 name="teamId"
                 value={formData.teamId}
                 onChange={handleChange}
-                disabled={!isEditing || !formData.departmentId || teams.length === 0}
+                disabled={
+                  !isEditing || !formData.departmentId || teams.length === 0
+                }
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing && formData.departmentId && teams.length > 0 ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing && formData.departmentId && teams.length > 0
+                    ? "bg-white"
+                    : "bg-gray-50 text-gray-600"
                 }`}
               >
                 <option value="">
                   {!formData.departmentId
-                    ? 'Chọn phòng ban trước'
+                    ? "Chọn phòng ban trước"
                     : teams.length === 0
-                    ? 'Không có tổ nào'
-                    : 'Chọn tổ'}
+                      ? "Không có tổ nào"
+                      : "Chọn tổ"}
                 </option>
                 {teams.map((team) => (
                   <option key={team.id} value={team.id}>
@@ -611,11 +642,11 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               >
                 <option value="">Chọn trạng thái</option>
-                <option value="Đã phỏng vấn">Đã phỏng vấn</option>
+                <option value="Cộng tác">Cộng tác</option>
                 <option value="Thử việc">Thử việc</option>
                 <option value="Chính thức">Chính thức</option>
                 <option value="Nghỉ việc">Nghỉ việc</option>
@@ -633,7 +664,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               >
                 <option value="daily">Theo ngày</option>
@@ -654,7 +685,7 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 disabled={!isEditing}
                 placeholder="Nhập mức lương"
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                  isEditing ? 'bg-white' : 'bg-gray-50 text-gray-600'
+                  isEditing ? "bg-white" : "bg-gray-50 text-gray-600"
                 }`}
               />
             </div>
@@ -670,7 +701,10 @@ const EmployeeBasicInfo = ({ employee, onUpdate }: EmployeeBasicInfoProps) => {
                 disabled={!isEditing}
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
-              <label htmlFor="isManager" className="ml-2 block text-sm text-gray-700">
+              <label
+                htmlFor="isManager"
+                className="ml-2 block text-sm text-gray-700"
+              >
                 Là quản lý
               </label>
             </div>

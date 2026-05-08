@@ -27,17 +27,17 @@ import ErrorMessage from "./commons/ErrorMessage";
 
 // Helper: Format time "H:M" hoặc "HH:MM" thành "HH:MM:SS"
 function formatTimeForBackend(time: string): string {
-  if (!time) return '';
-  const [h, m] = time.split(':');
-  const hours = (h || '0').padStart(2, '0');
-  const minutes = (m || '0').padStart(2, '0');
+  if (!time) return "";
+  const [h, m] = time.split(":");
+  const hours = (h || "0").padStart(2, "0");
+  const minutes = (m || "0").padStart(2, "0");
   return `${hours}:${minutes}:00`;
 }
 
 interface EmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   employee?: EmployeeItem | null;
   positions: PositionItem[];
   departments: Department[];
@@ -53,7 +53,7 @@ interface EmployeeModalProps {
     teamId?: number;
     salary?: number;
     status?: string;
-    salaryType?: 'daily' | 'production';
+    salaryType?: "daily" | "production";
     startDateJob?: string;
     endDateJob?: string;
     isManager?: boolean;
@@ -105,7 +105,7 @@ export function EmployeeModal({
       try {
         const list = await positionApi.getAll(
           factoryId,
-          Number(formData.departmentId)
+          Number(formData.departmentId),
         );
         if (isMounted) setPositionsByDept(list || []);
       } catch (_) {
@@ -126,7 +126,9 @@ export function EmployeeModal({
         return;
       }
       try {
-        const list = await teamApi.getByDepartment(Number(formData.departmentId));
+        const list = await teamApi.getByDepartment(
+          Number(formData.departmentId),
+        );
         if (isMounted) setTeamsByPosition(list || []);
       } catch (_) {
         if (isMounted) setTeamsByPosition([]);
@@ -139,8 +141,10 @@ export function EmployeeModal({
 
   // Initialize form data when employee changes (for edit mode)
   useEffect(() => {
-    if (mode === 'edit' && employee) {
-      const deptId = (employee as any).position?.departmentId || (employee as any).department?.id;
+    if (mode === "edit" && employee) {
+      const deptId =
+        (employee as any).position?.departmentId ||
+        (employee as any).department?.id;
       // Convert TIME format (HH:mm:ss) to HTML time input format (HH:mm)
       const startWork = (employee as any).hourStartWork
         ? (employee as any).hourStartWork.substring(0, 5)
@@ -155,18 +159,24 @@ export function EmployeeModal({
         phone: employee.user?.phone || "",
         email: (employee as any).email || "",
         departmentId: String(deptId || ""),
-        positionId: String((employee as any).positionId || employee.position?.id || ""),
+        positionId: String(
+          (employee as any).positionId || employee.position?.id || "",
+        ),
         teamId: String((employee as any).teamId || ""),
         salary: String(employee.salary || ""),
         status: employee.status || "Chính thức",
         salaryType: (employee as any).salaryType || "daily",
-        startDateJob: employee.startDateJob ? new Date(employee.startDateJob).toISOString().split('T')[0] : "",
-        endDateJob: employee.endDateJob ? new Date(employee.endDateJob).toISOString().split('T')[0] : "",
+        startDateJob: employee.startDateJob
+          ? new Date(employee.startDateJob).toISOString().split("T")[0]
+          : "",
+        endDateJob: employee.endDateJob
+          ? new Date(employee.endDateJob).toISOString().split("T")[0]
+          : "",
         isManager: employee.isManager || false,
         hourStartWork: startWork,
         hourEndWork: endWork,
       });
-    } else if (mode === 'create') {
+    } else if (mode === "create") {
       // Reset form for create mode
       setFormData({
         employeeCode: "",
@@ -192,8 +202,8 @@ export function EmployeeModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
-    if (mode === 'create') {
+
+    if (mode === "create") {
       if (
         !formData.fullName ||
         !formData.phone ||
@@ -210,24 +220,34 @@ export function EmployeeModal({
       }
     }
 
-    showLoading(mode === 'create' ? "Đang tạo nhân viên..." : "Đang cập nhật nhân viên...");
-    
+    showLoading(
+      mode === "create"
+        ? "Đang tạo nhân viên..."
+        : "Đang cập nhật nhân viên...",
+    );
+
     try {
       const submitData: any = {
         positionId: Number(formData.positionId),
-        departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
+        departmentId: formData.departmentId
+          ? Number(formData.departmentId)
+          : undefined,
         teamId: formData.teamId ? Number(formData.teamId) : undefined,
         salary: formData.salary ? Number(formData.salary) : undefined,
         status: formData.status || undefined,
-        salaryType: formData.salaryType as 'daily' | 'production',
+        salaryType: formData.salaryType as "daily" | "production",
         startDateJob: formData.startDateJob || undefined,
         endDateJob: formData.endDateJob || undefined,
         isManager: formData.isManager,
-        hourStartWork: formData.hourStartWork ? formatTimeForBackend(formData.hourStartWork) : null,
-        hourEndWork: formData.hourEndWork ? formatTimeForBackend(formData.hourEndWork) : null,
+        hourStartWork: formData.hourStartWork
+          ? formatTimeForBackend(formData.hourStartWork)
+          : null,
+        hourEndWork: formData.hourEndWork
+          ? formatTimeForBackend(formData.hourEndWork)
+          : null,
       };
 
-      if (mode === 'create') {
+      if (mode === "create") {
         submitData.employeeCode = formData.employeeCode || undefined;
         submitData.fullName = formData.fullName;
         submitData.gender = formData.gender || undefined;
@@ -236,12 +256,16 @@ export function EmployeeModal({
       } else {
         // For edit mode, only include changed fields
         if (employee) {
-          const employeeCodeChanged = formData.employeeCode !== ((employee as any).employeeCode || '');
-          const genderChanged = formData.gender !== ((employee as any).gender || '');
-          const phoneChanged = formData.phone !== (employee.user?.phone || '');
-          const emailChanged = formData.email !== ((employee as any).email || '');
+          const employeeCodeChanged =
+            formData.employeeCode !== ((employee as any).employeeCode || "");
+          const genderChanged =
+            formData.gender !== ((employee as any).gender || "");
+          const phoneChanged = formData.phone !== (employee.user?.phone || "");
+          const emailChanged =
+            formData.email !== ((employee as any).email || "");
 
-          if (employeeCodeChanged) submitData.employeeCode = formData.employeeCode || undefined;
+          if (employeeCodeChanged)
+            submitData.employeeCode = formData.employeeCode || undefined;
           if (genderChanged) submitData.gender = formData.gender || undefined;
           if (phoneChanged) submitData.phone = formData.phone || undefined;
           if (emailChanged) submitData.email = formData.email || undefined;
@@ -249,9 +273,9 @@ export function EmployeeModal({
       }
 
       await onSubmit(submitData);
-      
+
       // Reset form after successful submission
-      if (mode === 'create') {
+      if (mode === "create") {
         setFormData({
           employeeCode: "",
           fullName: "",
@@ -273,11 +297,17 @@ export function EmployeeModal({
       }
     } catch (err: any) {
       const message =
-        err?.message || err?.data?.errors?.message || 
-        (mode === 'create' ? "Tạo nhân viên thất bại" : "Cập nhật nhân viên thất bại");
+        err?.message ||
+        err?.data?.errors?.message ||
+        (mode === "create"
+          ? "Tạo nhân viên thất bại"
+          : "Cập nhật nhân viên thất bại");
       setError(
-        typeof message === "string" ? message : 
-        (mode === 'create' ? "Tạo nhân viên thất bại" : "Cập nhật nhân viên thất bại")
+        typeof message === "string"
+          ? message
+          : mode === "create"
+            ? "Tạo nhân viên thất bại"
+            : "Cập nhật nhân viên thất bại",
       );
     } finally {
       hideLoading();
@@ -307,32 +337,39 @@ export function EmployeeModal({
     onClose();
   };
 
-  const isFormValid = mode === 'create' 
-    ? formData.fullName && formData.phone && formData.positionId
-    : formData.positionId;
+  const isFormValid =
+    mode === "create"
+      ? formData.fullName && formData.phone && formData.positionId
+      : formData.positionId;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Thêm nhân viên' : 'Cập nhật nhân viên'}
+            {mode === "create" ? "Thêm nhân viên" : "Cập nhật nhân viên"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           {error && <ErrorMessage error={error} setError={setError} />}
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
             {/* Cột trái - Thông tin cá nhân */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Thông tin cá nhân</h3>
-              
+              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">
+                Thông tin cá nhân
+              </h3>
+
               {/* Employee Info Display for edit mode */}
-              {mode === 'edit' && employee && (
+              {mode === "edit" && employee && (
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <div className="text-sm text-gray-600 mb-1">Nhân viên</div>
-                  <div className="font-medium">{employee.user?.fullName || '-'}</div>
-                  <div className="text-sm text-gray-500">{employee.user?.phone || '-'}</div>
+                  <div className="font-medium">
+                    {employee.user?.fullName || "-"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {employee.user?.phone || "-"}
+                  </div>
                 </div>
               )}
 
@@ -346,11 +383,13 @@ export function EmployeeModal({
                     setFormData({ ...formData, employeeCode: e.target.value })
                   }
                   placeholder="Nhập mã nhân viên"
-                  disabled={mode === 'edit' && !!(employee as any)?.employeeCode}
+                  disabled={
+                    mode === "edit" && !!(employee as any)?.employeeCode
+                  }
                 />
               </div>
 
-              {mode === 'create' && (
+              {mode === "create" && (
                 <div className="grid gap-2">
                   <Label htmlFor="fullName">
                     Họ và tên <span className="text-red-500">*</span>
@@ -389,7 +428,8 @@ export function EmployeeModal({
 
               <div className="grid gap-2">
                 <Label htmlFor="phone">
-                  Số điện thoại {mode === 'create' && <span className="text-red-500">*</span>}
+                  Số điện thoại{" "}
+                  {mode === "create" && <span className="text-red-500">*</span>}
                 </Label>
                 <Input
                   id="phone"
@@ -405,7 +445,7 @@ export function EmployeeModal({
                     })
                   }
                   placeholder="Nhập số điện thoại"
-                  required={mode === 'create'}
+                  required={mode === "create"}
                 />
               </div>
 
@@ -434,7 +474,7 @@ export function EmployeeModal({
                 />
               </div>
 
-              {mode === 'edit' && (
+              {mode === "edit" && (
                 <div className="grid gap-2">
                   <Label htmlFor="endDateJob">Ngày kết thúc</Label>
                   <Input
@@ -451,11 +491,14 @@ export function EmployeeModal({
 
             {/* Cột phải - Thông tin công việc */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Thông tin công việc</h3>
-              
+              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">
+                Thông tin công việc
+              </h3>
+
               <div className="grid gap-2">
                 <Label>
-                  Phòng ban {mode === 'create' && <span className="text-red-500">*</span>}
+                  Phòng ban{" "}
+                  {mode === "create" && <span className="text-red-500">*</span>}
                 </Label>
                 <Select
                   value={formData.departmentId}
@@ -511,16 +554,20 @@ export function EmployeeModal({
                   onValueChange={(value) =>
                     setFormData({ ...formData, teamId: value })
                   }
-                  disabled={!formData.departmentId || teamsByPosition.length === 0}
+                  disabled={
+                    !formData.departmentId || teamsByPosition.length === 0
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={
-                      !formData.departmentId
-                        ? "Chọn phòng ban trước"
-                        : teamsByPosition.length === 0
-                        ? "Không có tổ nào"
-                        : "Chọn tổ"
-                    } />
+                    <SelectValue
+                      placeholder={
+                        !formData.departmentId
+                          ? "Chọn phòng ban trước"
+                          : teamsByPosition.length === 0
+                            ? "Không có tổ nào"
+                            : "Chọn tổ"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {teamsByPosition.map((t) => (
@@ -544,7 +591,7 @@ export function EmployeeModal({
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Đã phỏng vấn">Đã phỏng vấn</SelectItem>
+                    <SelectItem value="Cộng tác">Cộng tác</SelectItem>
                     <SelectItem value="Thử việc">Thử việc</SelectItem>
                     <SelectItem value="Chính thức">Chính thức</SelectItem>
                     <SelectItem value="Nghỉ việc">Nghỉ việc</SelectItem>
@@ -572,7 +619,11 @@ export function EmployeeModal({
 
               <div className="grid gap-2">
                 <Label htmlFor="salary">
-                  Lương {formData.salaryType === 'daily' ? 'theo ngày' : 'theo sản lượng'} (VNĐ)
+                  Lương{" "}
+                  {formData.salaryType === "daily"
+                    ? "theo ngày"
+                    : "theo sản lượng"}{" "}
+                  (VNĐ)
                 </Label>
                 <Input
                   id="salary"
@@ -583,7 +634,11 @@ export function EmployeeModal({
                   onChange={(e) =>
                     setFormData({ ...formData, salary: e.target.value })
                   }
-                  placeholder={formData.salaryType === 'daily' ? 'Nhập lương theo ngày' : 'Nhập lương theo sản lượng'}
+                  placeholder={
+                    formData.salaryType === "daily"
+                      ? "Nhập lương theo ngày"
+                      : "Nhập lương theo sản lượng"
+                  }
                 />
               </div>
 
@@ -610,7 +665,8 @@ export function EmployeeModal({
               Giờ làm việc riêng (tùy chọn)
             </h3>
             <p className="text-xs text-gray-500 mb-4">
-              Nếu nhân viên có giờ làm việc khác với nhà máy, hãy thiết lập tại đây. Để trống sẽ áp dụng giờ của nhà máy.
+              Nếu nhân viên có giờ làm việc khác với nhà máy, hãy thiết lập tại
+              đây. Để trống sẽ áp dụng giờ của nhà máy.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -641,14 +697,15 @@ export function EmployeeModal({
             <Button type="button" variant="outline" onClick={handleClose}>
               Hủy
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || !isFormValid}
-            >
+            <Button type="submit" disabled={isLoading || !isFormValid}>
               {isLoading ? (
-                <LoadingButton text={mode === 'create' ? "Đang tạo..." : "Đang cập nhật..."} />
+                <LoadingButton
+                  text={mode === "create" ? "Đang tạo..." : "Đang cập nhật..."}
+                />
+              ) : mode === "create" ? (
+                "Tạo nhân viên"
               ) : (
-                mode === 'create' ? "Tạo nhân viên" : "Cập nhật"
+                "Cập nhật"
               )}
             </Button>
           </DialogFooter>

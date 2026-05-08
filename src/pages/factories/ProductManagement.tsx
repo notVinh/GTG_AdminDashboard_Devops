@@ -1014,7 +1014,10 @@ const ProductModal = ({
           <InventoryModal
             isOpen={!!selectedInventory}
             onClose={() => setSelectedInventory(null)}
-            productName={formData?.translations?.[0]?.name || "Sản phẩm"}
+            productName={
+              formData?.translations?.find((t: any) => t.languageCode === "vi")
+                ?.name || "Sản phẩm"
+            }
             inventoryData={formData?.inventoryBalance || []}
           />
         </form>

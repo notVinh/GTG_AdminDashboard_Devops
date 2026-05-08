@@ -92,7 +92,8 @@ const PURCHASE_ORDER_PERMISSIONS: Array<{
   {
     key: "receive_notification_of_purchase_requisition",
     label: "Nhận thông báo và xác nhận mua hàng",
-    description: "Nhận thông báo khi đề xuất mua hàng được duyệt và xác nhận đã mua hàng",
+    description:
+      "Nhận thông báo khi đề xuất mua hàng được duyệt và xác nhận đã mua hàng",
   },
   {
     key: "approve_purchase_requisition",
@@ -306,24 +307,24 @@ function RoleGroupPermissionsTab({
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [adminMenuKeys, setAdminMenuKeys] = useState<string[]>(
-    group.adminMenuKeys || []
+    group.adminMenuKeys || [],
   );
   const [salesOrderPermissions, setSalesOrderPermissions] = useState<string[]>(
     (group.permissions || []).filter((p) =>
-      SALES_ORDER_PERMISSIONS.some((sp) => sp.key === p)
-    )
+      SALES_ORDER_PERMISSIONS.some((sp) => sp.key === p),
+    ),
   );
   const [purchaseOrderPermissions, setPurchaseOrderPermissions] = useState<
     string[]
   >(
     (group.permissions || []).filter((p) =>
-      PURCHASE_ORDER_PERMISSIONS.some((pp) => pp.key === p)
-    )
+      PURCHASE_ORDER_PERMISSIONS.some((pp) => pp.key === p),
+    ),
   );
   const [hrPermissions, setHrPermissions] = useState<string[]>(
     (group.permissions || []).filter((p) =>
-      HR_PERMISSIONS.some((hp) => hp.key === p)
-    )
+      HR_PERMISSIONS.some((hp) => hp.key === p),
+    ),
   );
 
   // Get menu config - sử dụng cấu trúc cây
@@ -360,7 +361,7 @@ function RoleGroupPermissionsTab({
   ];
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
-    categories.length > 0 ? categories[0].type : "screen"
+    categories.length > 0 ? categories[0].type : "screen",
   );
 
   const handleSave = async () => {
@@ -375,7 +376,7 @@ function RoleGroupPermissionsTab({
       await roleGroupApi.updatePermissionsAndMenuKeys(
         group.id,
         allPermissions,
-        adminMenuKeys
+        adminMenuKeys,
       );
 
       toast.success("Cập nhật quyền thành công");
@@ -383,7 +384,7 @@ function RoleGroupPermissionsTab({
     } catch (error) {
       console.error(
         "[RoleGroupPermissionsTab] Error updating permissions:",
-        error
+        error,
       );
       toast.error("Không thể cập nhật quyền");
     } finally {
@@ -411,7 +412,7 @@ function RoleGroupPermissionsTab({
   const findParentMenu = (
     menuId: string,
     items: MenuItemConfig[],
-    parent: MenuItemConfig | null = null
+    parent: MenuItemConfig | null = null,
   ): MenuItemConfig | null => {
     for (const item of items) {
       // Nếu tìm thấy menu item có id trùng với menuId
@@ -433,7 +434,7 @@ function RoleGroupPermissionsTab({
   // Helper: Tìm menu item theo ID
   const findMenuById = (
     menuId: string,
-    items: MenuItemConfig[]
+    items: MenuItemConfig[],
   ): MenuItemConfig | null => {
     for (const item of items) {
       if (item.id === menuId) {
@@ -502,19 +503,19 @@ function RoleGroupPermissionsTab({
 
   const toggleSalesOrderPermission = (key: string) => {
     setSalesOrderPermissions((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   };
 
   const togglePurchaseOrderPermission = (key: string) => {
     setPurchaseOrderPermissions((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   };
 
   const toggleHrPermission = (key: string) => {
     setHrPermissions((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   };
 
@@ -605,14 +606,14 @@ function RoleGroupPermissionsTab({
       return (
         SALES_ORDER_PERMISSIONS.length > 0 &&
         SALES_ORDER_PERMISSIONS.every((p) =>
-          salesOrderPermissions.includes(p.key)
+          salesOrderPermissions.includes(p.key),
         )
       );
     } else if (category === "purchase-order") {
       return (
         PURCHASE_ORDER_PERMISSIONS.length > 0 &&
         PURCHASE_ORDER_PERMISSIONS.every((p) =>
-          purchaseOrderPermissions.includes(p.key)
+          purchaseOrderPermissions.includes(p.key),
         )
       );
     }
@@ -634,7 +635,7 @@ function RoleGroupPermissionsTab({
   // Render menu items với cấu trúc cây
   const renderMenuItems = (
     items: MenuItemConfig[],
-    level: number = 0
+    level: number = 0,
   ): React.ReactNode => {
     return items.map((item) => {
       const hasChildren = item.children && item.children.length > 0;
@@ -870,10 +871,10 @@ function RoleGroupPermissionsTab({
                       {selectedCategory === "hr"
                         ? "Quyền HR"
                         : selectedCategory === "sales-order"
-                        ? "Quyền đơn bán hàng"
-                        : selectedCategory === "purchase-order"
-                        ? "Quyền đơn mua hàng"
-                        : ""}
+                          ? "Quyền đơn bán hàng"
+                          : selectedCategory === "purchase-order"
+                            ? "Quyền đơn mua hàng"
+                            : ""}
                     </h3>
                     <div className="flex gap-2">
                       {isAllSelectedInCategory(selectedCategory) ? (
@@ -967,10 +968,10 @@ function RoleGroupEmployeesTab({
   const [saving, setSaving] = useState(false);
   const [allEmployees, setAllEmployees] = useState<EmployeeWithDetails[]>([]);
   const [groupEmployeeIds, setGroupEmployeeIds] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
 
   // Filter states
@@ -1021,7 +1022,7 @@ function RoleGroupEmployeesTab({
     } catch (error) {
       console.error(
         "[RoleGroupEmployeesTab] Error fetching filter options:",
-        error
+        error,
       );
     }
   };
@@ -1034,7 +1035,7 @@ function RoleGroupEmployeesTab({
         employeeApi.listEmployeesWithDetails(1, 10000, factoryId, {}),
       ]);
       const groupIds = new Set(
-        (groupEmployees || []).map((e: EmployeeWithDetails) => +e.id)
+        (groupEmployees || []).map((e: EmployeeWithDetails) => +e.id),
       );
       setGroupEmployeeIds(groupIds);
       setSelectedEmployeeIds(new Set(groupIds));
@@ -1168,7 +1169,7 @@ function RoleGroupEmployeesTab({
     filteredEmployees.length > 0 &&
     filteredEmployees.every((emp) => selectedEmployeeIds.has(+emp.id));
   const someFilteredSelected = filteredEmployees.some((emp) =>
-    selectedEmployeeIds.has(+emp.id)
+    selectedEmployeeIds.has(+emp.id),
   );
 
   return (
@@ -1197,7 +1198,7 @@ function RoleGroupEmployeesTab({
             },
             ...(departmentFilter &&
             teams.filter(
-              (t) => String(t.departmentId) === String(departmentFilter)
+              (t) => String(t.departmentId) === String(departmentFilter),
             ).length > 0
               ? [
                   {
@@ -1210,7 +1211,7 @@ function RoleGroupEmployeesTab({
                       ...teams
                         .filter(
                           (t) =>
-                            String(t.departmentId) === String(departmentFilter)
+                            String(t.departmentId) === String(departmentFilter),
                         )
                         .map((t) => ({
                           value: t.id.toString(),
@@ -1224,7 +1225,7 @@ function RoleGroupEmployeesTab({
             ...(departmentFilter &&
             positions.filter(
               (p) =>
-                String((p as any).departmentId) === String(departmentFilter)
+                String((p as any).departmentId) === String(departmentFilter),
             ).length > 0
               ? [
                   {
@@ -1238,7 +1239,7 @@ function RoleGroupEmployeesTab({
                         .filter(
                           (p) =>
                             String((p as any).departmentId) ===
-                            String(departmentFilter)
+                            String(departmentFilter),
                         )
                         .map((p) => ({
                           value: p.id.toString(),
@@ -1256,7 +1257,7 @@ function RoleGroupEmployeesTab({
               onChange: setStatusFilter,
               options: [
                 { value: "", label: "Tất cả trạng thái" },
-                { value: "Đã phỏng vấn", label: "Đã phỏng vấn" },
+                { value: "Cộng tác", label: "Cộng tác" },
                 { value: "Thử việc", label: "Thử việc" },
                 { value: "Chính thức", label: "Chính thức" },
                 { value: "Nghỉ việc", label: "Nghỉ việc" },

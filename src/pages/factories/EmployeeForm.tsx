@@ -35,39 +35,39 @@ interface AttendanceMethodOption {
 
 // Helper: Format time "H:M" hoặc "HH:MM" thành "HH:MM:SS"
 function formatTimeForBackend(time: string): string {
-  if (!time) return '';
-  const [h, m] = time.split(':');
-  const hours = (h || '0').padStart(2, '0');
-  const minutes = (m || '0').padStart(2, '0');
+  if (!time) return "";
+  const [h, m] = time.split(":");
+  const hours = (h || "0").padStart(2, "0");
+  const minutes = (m || "0").padStart(2, "0");
   return `${hours}:${minutes}:00`;
 }
 
 const attendanceMethods: AttendanceMethodOption[] = [
   {
-    id: 'location',
-    label: 'Chấm công theo vị trí',
-    description: 'Yêu cầu nhân viên ở trong khu vực nhà máy khi chấm công',
+    id: "location",
+    label: "Chấm công theo vị trí",
+    description: "Yêu cầu nhân viên ở trong khu vực nhà máy khi chấm công",
     icon: MapPin,
     available: true,
   },
   {
-    id: 'remote',
-    label: 'Chấm công từ xa',
-    description: 'Cho phép chấm công mà không cần kiểm tra vị trí',
+    id: "remote",
+    label: "Chấm công từ xa",
+    description: "Cho phép chấm công mà không cần kiểm tra vị trí",
     icon: MapPin,
     available: true,
   },
   {
-    id: 'photo',
-    label: 'Chấm công bằng hình ảnh',
-    description: 'Yêu cầu chụp ảnh khi chấm công',
+    id: "photo",
+    label: "Chấm công bằng hình ảnh",
+    description: "Yêu cầu chụp ảnh khi chấm công",
     icon: Camera,
     available: false,
   },
   {
-    id: 'fingerprint',
-    label: 'Chấm công bằng vân tay',
-    description: 'Sử dụng thiết bị vân tay để chấm công',
+    id: "fingerprint",
+    label: "Chấm công bằng vân tay",
+    description: "Sử dụng thiết bị vân tay để chấm công",
     icon: Fingerprint,
     available: false,
   },
@@ -95,7 +95,12 @@ export default function EmployeeForm() {
     hourEndWork: "",
   });
   const [attendanceConfig, setAttendanceConfig] = useState({
-    allowedAttendanceMethods: ['location'] as ('location' | 'remote' | 'photo' | 'fingerprint')[],
+    allowedAttendanceMethods: ["location"] as (
+      | "location"
+      | "remote"
+      | "photo"
+      | "fingerprint"
+    )[],
     requireLocationCheck: true,
     requirePhotoVerification: false,
     requireFingerprintVerification: false,
@@ -106,7 +111,10 @@ export default function EmployeeForm() {
     return attendanceConfig.allowedAttendanceMethods.includes(methodId);
   };
 
-  const handleMethodToggle = (methodId: AttendanceMethod, currentValue: boolean) => {
+  const handleMethodToggle = (
+    methodId: AttendanceMethod,
+    currentValue: boolean,
+  ) => {
     const currentMethods = attendanceConfig.allowedAttendanceMethods;
 
     if (currentValue) {
@@ -119,14 +127,14 @@ export default function EmployeeForm() {
         };
 
         // If disabling remote, update related fields
-        if (methodId === 'remote') {
+        if (methodId === "remote") {
           newConfig.allowRemoteAttendance = false;
           newConfig.requireLocationCheck = true;
         }
 
         setAttendanceConfig(newConfig);
       } else {
-        showToast('Phải có ít nhất một phương thức chấm công!', 'error');
+        showToast("Phải có ít nhất một phương thức chấm công!", "error");
       }
     } else {
       // Turning on - add method
@@ -136,7 +144,7 @@ export default function EmployeeForm() {
       };
 
       // If enabling remote, update related fields
-      if (methodId === 'remote') {
+      if (methodId === "remote") {
         newConfig.allowRemoteAttendance = true;
         newConfig.requireLocationCheck = false;
       }
@@ -200,7 +208,7 @@ export default function EmployeeForm() {
       try {
         const list = await positionApi.getAll(
           myFactory.id,
-          Number(formData.departmentId)
+          Number(formData.departmentId),
         );
         if (isMounted) setPositionsByDept(list || []);
       } catch (_) {
@@ -221,7 +229,9 @@ export default function EmployeeForm() {
         return;
       }
       try {
-        const list = await teamApi.getByDepartment(Number(formData.departmentId));
+        const list = await teamApi.getByDepartment(
+          Number(formData.departmentId),
+        );
         if (isMounted) setTeamsByPosition(list || []);
       } catch (_) {
         if (isMounted) setTeamsByPosition([]);
@@ -266,18 +276,24 @@ export default function EmployeeForm() {
         teamId: formData.teamId ? Number(formData.teamId) : undefined,
         salary: formData.salary ? Number(formData.salary) : undefined,
         status: formData.status || undefined,
-        salaryType: formData.salaryType as 'daily' | 'production',
+        salaryType: formData.salaryType as "daily" | "production",
         startDateJob: formData.startDateJob || undefined,
         endDateJob: formData.endDateJob || undefined,
         isManager: formData.isManager,
-        hourStartWork: formData.hourStartWork ? formatTimeForBackend(formData.hourStartWork) : undefined,
-        hourEndWork: formData.hourEndWork ? formatTimeForBackend(formData.hourEndWork) : undefined,
-        allowedAttendanceMethods: attendanceConfig.allowedAttendanceMethods.length > 0
-          ? attendanceConfig.allowedAttendanceMethods
+        hourStartWork: formData.hourStartWork
+          ? formatTimeForBackend(formData.hourStartWork)
           : undefined,
+        hourEndWork: formData.hourEndWork
+          ? formatTimeForBackend(formData.hourEndWork)
+          : undefined,
+        allowedAttendanceMethods:
+          attendanceConfig.allowedAttendanceMethods.length > 0
+            ? attendanceConfig.allowedAttendanceMethods
+            : undefined,
         requireLocationCheck: attendanceConfig.requireLocationCheck,
         requirePhotoVerification: attendanceConfig.requirePhotoVerification,
-        requireFingerprintVerification: attendanceConfig.requireFingerprintVerification,
+        requireFingerprintVerification:
+          attendanceConfig.requireFingerprintVerification,
         allowRemoteAttendance: attendanceConfig.allowRemoteAttendance,
       };
 
@@ -289,7 +305,7 @@ export default function EmployeeForm() {
       const message =
         err?.message || err?.data?.errors?.message || "Tạo nhân viên thất bại";
       setError(
-        typeof message === "string" ? message : "Tạo nhân viên thất bại"
+        typeof message === "string" ? message : "Tạo nhân viên thất bại",
       );
     } finally {
       hideLoading();
@@ -300,7 +316,8 @@ export default function EmployeeForm() {
     navigate("/nha-may-cua-toi/nhan-vien");
   };
 
-  const isFormValid = formData.fullName && formData.phone && formData.positionId;
+  const isFormValid =
+    formData.fullName && formData.phone && formData.positionId;
 
   return (
     <div className="p-6">
@@ -322,13 +339,18 @@ export default function EmployeeForm() {
 
       {/* Form */}
       <div className="max-w-5xl mx-auto">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow p-6"
+        >
           {error && <ErrorMessage error={error} setError={setError} />}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Cột trái - Thông tin cá nhân */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Thông tin cá nhân</h3>
+              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">
+                Thông tin cá nhân
+              </h3>
 
               <div className="grid gap-2">
                 <Label htmlFor="employeeCode">Mã nhân viên</Label>
@@ -426,7 +448,9 @@ export default function EmployeeForm() {
 
             {/* Cột phải - Thông tin công việc */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Thông tin công việc</h3>
+              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">
+                Thông tin công việc
+              </h3>
 
               <div className="grid gap-2">
                 <Label>
@@ -486,16 +510,20 @@ export default function EmployeeForm() {
                   onValueChange={(value) =>
                     setFormData({ ...formData, teamId: value })
                   }
-                  disabled={!formData.departmentId || teamsByPosition.length === 0}
+                  disabled={
+                    !formData.departmentId || teamsByPosition.length === 0
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={
-                      !formData.departmentId
-                        ? "Chọn phòng ban trước"
-                        : teamsByPosition.length === 0
-                        ? "Không có tổ nào"
-                        : "Chọn tổ"
-                    } />
+                    <SelectValue
+                      placeholder={
+                        !formData.departmentId
+                          ? "Chọn phòng ban trước"
+                          : teamsByPosition.length === 0
+                            ? "Không có tổ nào"
+                            : "Chọn tổ"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {teamsByPosition.map((t) => (
@@ -519,7 +547,7 @@ export default function EmployeeForm() {
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Đã phỏng vấn">Đã phỏng vấn</SelectItem>
+                    <SelectItem value="Cộng tác">Cộng tác</SelectItem>
                     <SelectItem value="Thử việc">Thử việc</SelectItem>
                     <SelectItem value="Chính thức">Chính thức</SelectItem>
                     <SelectItem value="Nghỉ việc">Nghỉ việc</SelectItem>
@@ -547,7 +575,11 @@ export default function EmployeeForm() {
 
               <div className="grid gap-2">
                 <Label htmlFor="salary">
-                  Lương {formData.salaryType === 'daily' ? 'theo ngày' : 'theo sản lượng'} (VNĐ)
+                  Lương{" "}
+                  {formData.salaryType === "daily"
+                    ? "theo ngày"
+                    : "theo sản lượng"}{" "}
+                  (VNĐ)
                 </Label>
                 <Input
                   id="salary"
@@ -558,7 +590,11 @@ export default function EmployeeForm() {
                   onChange={(e) =>
                     setFormData({ ...formData, salary: e.target.value })
                   }
-                  placeholder={formData.salaryType === 'daily' ? 'Nhập lương theo ngày' : 'Nhập lương theo sản lượng'}
+                  placeholder={
+                    formData.salaryType === "daily"
+                      ? "Nhập lương theo ngày"
+                      : "Nhập lương theo sản lượng"
+                  }
                 />
               </div>
 
@@ -586,7 +622,8 @@ export default function EmployeeForm() {
                 Giờ làm việc riêng (tùy chọn)
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                Nếu nhân viên có giờ làm việc khác với nhà máy, hãy thiết lập tại đây. Để trống sẽ áp dụng giờ của nhà máy.
+                Nếu nhân viên có giờ làm việc khác với nhà máy, hãy thiết lập
+                tại đây. Để trống sẽ áp dụng giờ của nhà máy.
               </p>
             </div>
 
@@ -643,15 +680,19 @@ export default function EmployeeForm() {
                     key={method.id}
                     className={`
                       flex items-center justify-between p-4 border border-gray-200 rounded-lg
-                      ${!method.available ? 'opacity-50' : ''}
+                      ${!method.available ? "opacity-50" : ""}
                     `}
                   >
                     <div className="flex items-start space-x-3 flex-1">
-                      <div className={`
+                      <div
+                        className={`
                         p-2 rounded-lg
-                        ${isEnabled ? 'bg-indigo-100' : 'bg-gray-100'}
-                      `}>
-                        <Icon className={`h-5 w-5 ${isEnabled ? 'text-indigo-600' : 'text-gray-600'}`} />
+                        ${isEnabled ? "bg-indigo-100" : "bg-gray-100"}
+                      `}
+                      >
+                        <Icon
+                          className={`h-5 w-5 ${isEnabled ? "text-indigo-600" : "text-gray-600"}`}
+                        />
                       </div>
                       <div className="flex-1">
                         <h4 className="text-sm font-medium text-gray-900">
@@ -662,26 +703,32 @@ export default function EmployeeForm() {
                             </span>
                           )}
                         </h4>
-                        <p className="text-xs text-gray-600 mt-1">{method.description}</p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {method.description}
+                        </p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer ml-4">
                       <input
                         type="checkbox"
                         checked={isEnabled}
-                        onChange={() => handleMethodToggle(method.id, isEnabled)}
+                        onChange={() =>
+                          handleMethodToggle(method.id, isEnabled)
+                        }
                         disabled={isDisabled}
                         className="sr-only peer"
                       />
-                      <div className={`
+                      <div
+                        className={`
                         w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
                         peer-focus:ring-indigo-300 rounded-full peer
                         peer-checked:after:translate-x-full peer-checked:after:border-white
                         after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                         after:bg-white after:border-gray-300 after:border after:rounded-full
                         after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600
-                        ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
-                      `}></div>
+                        ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+                      `}
+                      ></div>
                     </label>
                   </div>
                 );
@@ -691,8 +738,9 @@ export default function EmployeeForm() {
             {/* Note */}
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Lưu ý:</strong> Phải có ít nhất một phương thức chấm công được bật.
-                Cấu hình này sẽ áp dụng cho tất cả các lần chấm công của nhân viên.
+                <strong>Lưu ý:</strong> Phải có ít nhất một phương thức chấm
+                công được bật. Cấu hình này sẽ áp dụng cho tất cả các lần chấm
+                công của nhân viên.
               </p>
             </div>
           </div>

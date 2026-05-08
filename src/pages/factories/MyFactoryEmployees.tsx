@@ -45,8 +45,10 @@ export default function MyFactoryEmployees() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [positionFilter, setPositionFilter] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-  const [editingEmployee, setEditingEmployee] = useState<EmployeeItem | null>(null);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [editingEmployee, setEditingEmployee] = useState<EmployeeItem | null>(
+    null,
+  );
   const [positions, setPositions] = useState<PositionItem[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -94,7 +96,7 @@ export default function MyFactoryEmployees() {
             departmentId: departmentFilter || undefined,
             teamId: teamFilter || undefined,
             isManager: managerFilter || undefined,
-          }
+          },
         );
         if (isMounted) {
           setEmployees(emp.data as EmployeeItem[]);
@@ -116,7 +118,17 @@ export default function MyFactoryEmployees() {
     return () => {
       isMounted = false;
     };
-  }, [myFactory?.id, page, limit, searchTerm, positionFilter, statusFilter, departmentFilter, teamFilter, managerFilter]);
+  }, [
+    myFactory?.id,
+    page,
+    limit,
+    searchTerm,
+    positionFilter,
+    statusFilter,
+    departmentFilter,
+    teamFilter,
+    managerFilter,
+  ]);
 
   // Load teams when factory loads
   useEffect(() => {
@@ -163,18 +175,18 @@ export default function MyFactoryEmployees() {
 
   const handleDeleteEmployee = async (employee: EmployeeItem) => {
     const confirmed = await confirm({
-      title: 'Xác nhận xóa nhân viên',
-      message: `Bạn có chắc chắn muốn xóa nhân viên "${employee.user?.fullName || 'này'}"? Hành động này không thể hoàn tác.`,
-      confirmText: 'Xóa',
-      cancelText: 'Hủy',
-      type: 'danger',
+      title: "Xác nhận xóa nhân viên",
+      message: `Bạn có chắc chắn muốn xóa nhân viên "${employee.user?.fullName || "này"}"? Hành động này không thể hoàn tác.`,
+      confirmText: "Xóa",
+      cancelText: "Hủy",
+      type: "danger",
     });
 
     if (!confirmed) return;
 
     try {
       await employeeApi.delete(employee.id);
-      toast.success('Đã xóa nhân viên thành công!');
+      toast.success("Đã xóa nhân viên thành công!");
       // Reload employees list with current filters
       if (myFactory?.id) {
         const result = await employeeApi.listEmployeesWithDetails(
@@ -188,7 +200,7 @@ export default function MyFactoryEmployees() {
             departmentId: departmentFilter || undefined,
             teamId: teamFilter || undefined,
             isManager: managerFilter || undefined,
-          }
+          },
         );
         setEmployees(result.data as EmployeeItem[]);
         setTotal(result.meta?.total || result.data.length || 0);
@@ -197,7 +209,10 @@ export default function MyFactoryEmployees() {
       }
     } catch (error: any) {
       console.error("Error deleting employee:", error);
-      const message = error?.message || error?.data?.errors?.message || "Có lỗi xảy ra khi xóa nhân viên";
+      const message =
+        error?.message ||
+        error?.data?.errors?.message ||
+        "Có lỗi xảy ra khi xóa nhân viên";
       toast.error(message);
     }
   };
@@ -247,14 +262,17 @@ export default function MyFactoryEmployees() {
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button
-            onClick={() => navigate('/nha-may-cua-toi/nhan-vien/import')}
+            onClick={() => navigate("/nha-may-cua-toi/nhan-vien/import")}
             variant="outline"
             className="w-full sm:w-auto"
           >
             <FileSpreadsheet className="h-4 w-4 mr-2" />
             Import Excel
           </Button>
-          <Button onClick={() => navigate('/nha-may-cua-toi/nhan-vien/tao-moi')} className="w-full sm:w-auto">
+          <Button
+            onClick={() => navigate("/nha-may-cua-toi/nhan-vien/tao-moi")}
+            className="w-full sm:w-auto"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Thêm nhân viên
           </Button>
@@ -284,49 +302,60 @@ export default function MyFactoryEmployees() {
               icon: <Building2 className="h-4 w-4 text-gray-400" />,
             },
             // Only show team filter if department is selected and has teams
-            ...(departmentFilter && teams.filter(t => String(t.departmentId) === String(departmentFilter)).length > 0
-              ? [{
-                  type: "select" as const,
-                  label: "Tổ",
-                  value: teamFilter,
-                  onChange: setTeamFilter,
-                  options: [
-                    { value: "", label: "Tất cả tổ" },
-                    ...teams
-                      .filter(
-                        (t) =>
-                          String(t.departmentId) === String(departmentFilter)
-                      )
-                      .map((t) => ({
-                        value: t.id.toString(),
-                        label: t.name,
-                      })),
-                  ],
-                  icon: <UsersRound className="h-4 w-4 text-gray-400" />,
-                }]
+            ...(departmentFilter &&
+            teams.filter(
+              (t) => String(t.departmentId) === String(departmentFilter),
+            ).length > 0
+              ? [
+                  {
+                    type: "select" as const,
+                    label: "Tổ",
+                    value: teamFilter,
+                    onChange: setTeamFilter,
+                    options: [
+                      { value: "", label: "Tất cả tổ" },
+                      ...teams
+                        .filter(
+                          (t) =>
+                            String(t.departmentId) === String(departmentFilter),
+                        )
+                        .map((t) => ({
+                          value: t.id.toString(),
+                          label: t.name,
+                        })),
+                    ],
+                    icon: <UsersRound className="h-4 w-4 text-gray-400" />,
+                  },
+                ]
               : []),
             // Only show position filter if department is selected and has positions
-            ...(departmentFilter && positions.filter(p => String((p as any).departmentId) === String(departmentFilter)).length > 0
-              ? [{
-                  type: "select" as const,
-                  label: "Vị trí",
-                  value: positionFilter,
-                  onChange: setPositionFilter,
-                  options: [
-                    { value: "", label: "Tất cả vị trí" },
-                    ...positions
-                      .filter(
-                        (p) =>
-                          String((p as any).departmentId) ===
-                            String(departmentFilter)
-                      )
-                      .map((p) => ({
-                        value: p.id.toString(),
-                        label: p.name,
-                      })),
-                  ],
-                  icon: <Users className="h-4 w-4 text-gray-400" />,
-                }]
+            ...(departmentFilter &&
+            positions.filter(
+              (p) =>
+                String((p as any).departmentId) === String(departmentFilter),
+            ).length > 0
+              ? [
+                  {
+                    type: "select" as const,
+                    label: "Vị trí",
+                    value: positionFilter,
+                    onChange: setPositionFilter,
+                    options: [
+                      { value: "", label: "Tất cả vị trí" },
+                      ...positions
+                        .filter(
+                          (p) =>
+                            String((p as any).departmentId) ===
+                            String(departmentFilter),
+                        )
+                        .map((p) => ({
+                          value: p.id.toString(),
+                          label: p.name,
+                        })),
+                    ],
+                    icon: <Users className="h-4 w-4 text-gray-400" />,
+                  },
+                ]
               : []),
             {
               type: "select",
@@ -335,7 +364,7 @@ export default function MyFactoryEmployees() {
               onChange: setStatusFilter,
               options: [
                 { value: "", label: "Tất cả trạng thái" },
-                { value: "Đã phỏng vấn", label: "Đã phỏng vấn" },
+                { value: "Cộng tác", label: "Cộng tác" },
                 { value: "Thử việc", label: "Thử việc" },
                 { value: "Chính thức", label: "Chính thức" },
                 { value: "Nghỉ việc", label: "Nghỉ việc" },
@@ -420,47 +449,60 @@ export default function MyFactoryEmployees() {
       {/* Employees Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="p-4 border-b">
-          <h2 className="text-base sm:text-lg font-semibold">Danh sách nhân viên</h2>
+          <h2 className="text-base sm:text-lg font-semibold">
+            Danh sách nhân viên
+          </h2>
         </div>
 
         {/* Mobile Card View */}
         <div className="block sm:hidden divide-y divide-gray-200">
           {employees.map((employee) => (
-              <div key={employee.id} className="p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-gray-900">{employee.user?.fullName || '-'}</span>
-                      {employee.isManager && (
-                        <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                          Quản lý
-                        </span>
-                      )}
+            <div key={employee.id} className="p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-medium text-gray-900">
+                      {employee.user?.fullName || "-"}
+                    </span>
+                    {employee.isManager && (
+                      <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        Quản lý
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <div>
+                      <span className="text-gray-500">Phòng ban:</span>{" "}
+                      {employee.department?.name || "-"}
                     </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div><span className="text-gray-500">Phòng ban:</span> {employee.department?.name || '-'}</div>
-                      <div><span className="text-gray-500">Vị trí:</span> {employee.position?.name || '-'}</div>
-                      <div><span className="text-gray-500">SĐT:</span> {employee.user?.phone || '-'}</div>
-                      <div>
-                        <span className="text-gray-500">Trạng thái:</span>{" "}
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            employee.status === "Chính thức"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {employee.status || "-"}
-                        </span>
-                      </div>
+                    <div>
+                      <span className="text-gray-500">Vị trí:</span>{" "}
+                      {employee.position?.name || "-"}
+                    </div>
+                    <div>
+                      <span className="text-gray-500">SĐT:</span>{" "}
+                      {employee.user?.phone || "-"}
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Trạng thái:</span>{" "}
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          employee.status === "Chính thức"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {employee.status || "-"}
+                      </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-end">
-                  <ActionsDropdown actions={getActions(employee)} />
-                </div>
               </div>
-            ))}
+              <div className="flex justify-end">
+                <ActionsDropdown actions={getActions(employee)} />
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Desktop Table View */}
@@ -490,42 +532,42 @@ export default function MyFactoryEmployees() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {employees.map((employee) => (
-                  <tr key={employee.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      <div className="flex items-center gap-2">
-                        <span>{employee.user?.fullName || '-'}</span>
-                        {employee.isManager && (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                            Quản lý
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {employee.department?.name || '-'}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {employee.position?.name || '-'}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {employee.user?.phone || '-'}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          employee.status === "Chính thức"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {employee.status || "-"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                      <ActionsDropdown actions={getActions(employee)} />
-                    </td>
-                  </tr>
-                ))}
+                <tr key={employee.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <div className="flex items-center gap-2">
+                      <span>{employee.user?.fullName || "-"}</span>
+                      {employee.isManager && (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                          Quản lý
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employee.department?.name || "-"}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employee.position?.name || "-"}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employee.user?.phone || "-"}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        employee.status === "Chính thức"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {employee.status || "-"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                    <ActionsDropdown actions={getActions(employee)} />
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -559,7 +601,7 @@ export default function MyFactoryEmployees() {
         departments={departments}
         factoryId={myFactory?.id || 0}
         onSubmit={async (data) => {
-          if (modalMode === 'create') {
+          if (modalMode === "create") {
             if (!myFactory?.id || !data.fullName || !data.phone) return;
             await employeeApi.createEmployeeWithUser({
               fullName: data.fullName,
@@ -592,7 +634,7 @@ export default function MyFactoryEmployees() {
               departmentId: departmentFilter || undefined,
               teamId: teamFilter || undefined,
               isManager: managerFilter || undefined,
-            }
+            },
           );
           setEmployees(emp.data as EmployeeItem[]);
           setTotal(emp.meta?.total || emp.data.length || 0);
@@ -600,7 +642,6 @@ export default function MyFactoryEmployees() {
           setOtherCount(emp.meta?.otherCount || 0);
         }}
       />
-
     </div>
   );
 }

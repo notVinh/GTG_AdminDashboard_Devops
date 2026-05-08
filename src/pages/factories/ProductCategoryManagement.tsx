@@ -793,7 +793,11 @@ const DetailModal = ({
       <InventoryModal
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
-        productName={selectedProduct?.translations?.[0]?.name || "Sản phẩm"}
+        productName={
+          selectedProduct?.translations?.find(
+            (t: any) => t.languageCode === "vi",
+          )?.name || "Sản phẩm"
+        }
         inventoryData={selectedProduct?.inventoryBalance || []}
       />
     </div>

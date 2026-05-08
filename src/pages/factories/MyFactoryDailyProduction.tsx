@@ -6,10 +6,17 @@ import { positionApi } from "../../api/positions";
 import { teamApi } from "../../api/team";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
-import { UserCheck, Eye, Users, Search, Filter, Building2, CheckCircle } from "lucide-react";
+import {
+  UserCheck,
+  Eye,
+  Users,
+  Search,
+  Filter,
+  Building2,
+  CheckCircle,
+} from "lucide-react";
 import type { EmployeeItem, PositionItem } from "../../types/employee";
 import type { Department, Team } from "../../types/department";
-
 
 export default function MyFactoryDailyProduction() {
   const navigate = useNavigate();
@@ -50,10 +57,10 @@ export default function MyFactoryDailyProduction() {
       setLoading(true);
       try {
         const [employeesList, pos, deps, teamList] = await Promise.all([
-          employeeApi.getEmployeesBySalaryType(factoryId, 'production'),
+          employeeApi.getEmployeesBySalaryType(factoryId, "production"),
           positionApi.getAll(factoryId),
           departmentApi.getAll(factoryId),
-          teamApi.getAll(factoryId)
+          teamApi.getAll(factoryId),
         ]);
         setEmployees(employeesList);
         setPositions(pos);
@@ -69,26 +76,31 @@ export default function MyFactoryDailyProduction() {
     // Search filter
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
-      const matchesSearch = (
+      const matchesSearch =
         employee.user?.fullName?.toLowerCase().includes(search) ||
         employee.user?.phone?.includes(search) ||
         employee.position?.name?.toLowerCase().includes(search) ||
-        employee.department?.name?.toLowerCase().includes(search)
-      );
+        employee.department?.name?.toLowerCase().includes(search);
       if (!matchesSearch) return false;
     }
 
     // Department filter
-    const deptId = (employee as any).position?.departmentId ?? (employee as any).department?.id;
-    const matchesDepartment = !departmentFilter || String(deptId ?? "") === String(departmentFilter);
+    const deptId =
+      (employee as any).position?.departmentId ??
+      (employee as any).department?.id;
+    const matchesDepartment =
+      !departmentFilter || String(deptId ?? "") === String(departmentFilter);
     if (!matchesDepartment) return false;
 
     // Team filter
-    const matchesTeam = !teamFilter || String((employee as any).teamId ?? "") === String(teamFilter);
+    const matchesTeam =
+      !teamFilter ||
+      String((employee as any).teamId ?? "") === String(teamFilter);
     if (!matchesTeam) return false;
 
     // Position filter
-    const matchesPosition = !positionFilter || String(employee.positionId) === String(positionFilter);
+    const matchesPosition =
+      !positionFilter || String(employee.positionId) === String(positionFilter);
     if (!matchesPosition) return false;
 
     // Status filter
@@ -96,19 +108,21 @@ export default function MyFactoryDailyProduction() {
     if (!matchesStatus) return false;
 
     // Manager filter
-    const matchesManager = !managerFilter || String(employee.isManager ?? false) === String(managerFilter);
+    const matchesManager =
+      !managerFilter ||
+      String(employee.isManager ?? false) === String(managerFilter);
     if (!matchesManager) return false;
 
     return true;
   });
 
-
-
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       <div className="flex items-center gap-2 sm:gap-3">
         <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-        <h1 className="text-lg sm:text-2xl font-bold">Công nhân lương theo sản lượng</h1>
+        <h1 className="text-lg sm:text-2xl font-bold">
+          Công nhân lương theo sản lượng
+        </h1>
       </div>
 
       {/* Search and Expandable Filters */}
@@ -172,7 +186,7 @@ export default function MyFactoryDailyProduction() {
                         .filter(
                           (t) =>
                             !departmentFilter ||
-                            String(t.departmentId) === String(departmentFilter)
+                            String(t.departmentId) === String(departmentFilter),
                         )
                         .map((t) => (
                           <option key={t.id} value={t.id}>
@@ -194,7 +208,7 @@ export default function MyFactoryDailyProduction() {
                           (p) =>
                             !departmentFilter ||
                             String((p as any).departmentId) ===
-                              String(departmentFilter)
+                              String(departmentFilter),
                         )
                         .map((p) => (
                           <option key={p.id} value={p.id}>
@@ -211,7 +225,7 @@ export default function MyFactoryDailyProduction() {
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg appearance-none bg-white"
                     >
                       <option value="">Tất cả trạng thái</option>
-                      <option value="Đã phỏng vấn">Đã phỏng vấn</option>
+                      <option value="Cộng tác">Cộng tác</option>
                       <option value="Thử việc">Thử việc</option>
                       <option value="Chính thức">Chính thức</option>
                       <option value="Nghỉ việc">Nghỉ việc</option>
@@ -245,13 +259,17 @@ export default function MyFactoryDailyProduction() {
         ) : filteredEmployees.length === 0 ? (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
             <div className="text-gray-500">
-              {searchTerm ? "Không tìm thấy công nhân phù hợp" : "Không có công nhân lương theo sản lượng"}
+              {searchTerm
+                ? "Không tìm thấy công nhân phù hợp"
+                : "Không có công nhân lương theo sản lượng"}
             </div>
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <div className="p-3 sm:p-4 border-b">
-              <h2 className="text-base sm:text-lg font-semibold">Danh sách công nhân lương theo sản lượng</h2>
+              <h2 className="text-base sm:text-lg font-semibold">
+                Danh sách công nhân lương theo sản lượng
+              </h2>
             </div>
 
             {/* Mobile Card View */}
@@ -260,14 +278,28 @@ export default function MyFactoryDailyProduction() {
                 <div key={employee.id} className="p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900">{employee.user?.fullName || '-'}</div>
+                      <div className="font-medium text-gray-900">
+                        {employee.user?.fullName || "-"}
+                      </div>
                       <div className="mt-2 space-y-1 text-sm text-gray-600">
-                        <div><span className="text-gray-500">Vị trí:</span> {employee.position?.name || '-'}</div>
-                        <div><span className="text-gray-500">Phòng ban:</span> {employee.department?.name || '-'}</div>
+                        <div>
+                          <span className="text-gray-500">Vị trí:</span>{" "}
+                          {employee.position?.name || "-"}
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Phòng ban:</span>{" "}
+                          {employee.department?.name || "-"}
+                        </div>
                       </div>
                       <div className="mt-2">
-                        <Badge variant={employee.status === 'Chính thức' ? 'default' : 'secondary'}>
-                          {employee.status || '-'}
+                        <Badge
+                          variant={
+                            employee.status === "Chính thức"
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
+                          {employee.status || "-"}
                         </Badge>
                       </div>
                     </div>
@@ -275,7 +307,9 @@ export default function MyFactoryDailyProduction() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(`/nha-may-cua-toi/san-luong/${employee.id}`)}
+                    onClick={() =>
+                      navigate(`/nha-may-cua-toi/san-luong/${employee.id}`)
+                    }
                     className="w-full"
                   >
                     <Eye className="h-4 w-4 mr-1" />
@@ -315,13 +349,15 @@ export default function MyFactoryDailyProduction() {
                           <div className="flex-shrink-0 h-10 w-10">
                             <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                               <span className="text-sm font-medium text-blue-600">
-                                {employee.user?.fullName?.charAt(0).toUpperCase() || '-'}
+                                {employee.user?.fullName
+                                  ?.charAt(0)
+                                  .toUpperCase() || "-"}
                               </span>
                             </div>
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {employee.user?.fullName || '-'}
+                              {employee.user?.fullName || "-"}
                             </div>
                             <div className="text-sm text-gray-500">
                               <Badge variant="secondary" className="text-xs">
@@ -332,10 +368,10 @@ export default function MyFactoryDailyProduction() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {employee.position?.name || '-'}
+                        {employee.position?.name || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {employee.department?.name || '-'}
+                        {employee.department?.name || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
@@ -346,7 +382,11 @@ export default function MyFactoryDailyProduction() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/nha-may-cua-toi/chi-tiet-san-xuat/${employee.id}`)}
+                          onClick={() =>
+                            navigate(
+                              `/nha-may-cua-toi/chi-tiet-san-xuat/${employee.id}`,
+                            )
+                          }
                           className="flex items-center gap-1"
                         >
                           <Eye className="h-4 w-4" />
@@ -367,7 +407,6 @@ export default function MyFactoryDailyProduction() {
           </div>
         )}
       </div>
-
     </div>
   );
 }
